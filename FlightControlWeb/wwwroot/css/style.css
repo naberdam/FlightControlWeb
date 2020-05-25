@@ -1,0 +1,15 @@
+# Empty CSS file for your own CSS
+
+#jumbotron {
+    padding: 0px;
+    color: aquamarine;
+}
+
+table {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+map{
+    padding: 10px;
+}
