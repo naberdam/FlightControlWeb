@@ -42,6 +42,7 @@ namespace FlightControl
         // Constructor that contains the name of sqlite database.
         public SqliteDataBase(string nameOfSqlite)
         {
+            CreateMutex();
             SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder
             {
                 // The path of our sqlite that we want to create.

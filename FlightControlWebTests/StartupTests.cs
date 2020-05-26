@@ -24,19 +24,19 @@ namespace FlightControl.Tests
                 Startup startUp = new Startup(null);
                 Assert.Fail("Dont catch the excepation");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                e = null;
+                
             }
         }
 
         [TestMethod()]
-        public void ConfigureServicesTest1()
+        public async Task ConfigureServicesTest1()
         {
             dataBase = new SqliteDataBase("sqliteTest.sqlite");
-            createTest();
+            await createTest();
         }
-        private void createTest()
+        private async Task createTest()
         {
             // Reset the flights for the test.
             deleteFlights();
@@ -94,7 +94,7 @@ namespace FlightControl.Tests
                 Console.WriteLine("There is a problem with the input");
             }
             string id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
-            if (dataBase.GetFlightPlanById(id) == null)
+            if (await dataBase.GetFlightPlanById(id) == null)
             {
                 Assert.Fail("Problem in get flight by Id");
             }
@@ -106,16 +106,17 @@ namespace FlightControl.Tests
             {
                 Assert.Fail("Problem in erasing flights");
             }
-
-            /*if (dataBase.GetFlightPlanById("111111111111111111") != null)
+            // Flight that not exist.
+       
+            if (await dataBase.GetFlightPlanById("111111111111111111") != null)
             {
-              //  Assert.Fail("Problem in get flight by Id");
-               
-            }*/
+                  Assert.Fail("Problem in get flight by Id");
+
+            }
 
             // Check the Methood GetFlightPlanByIdAndSync.
             id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
-            if (dataBase.GetFlightPlanById(id) == null)
+            if (await dataBase.GetFlightPlanById(id) == null)
             {
                 Assert.Fail("Problem in get flight by Id async");
             }
@@ -134,8 +135,7 @@ namespace FlightControl.Tests
         }
         private void deleteFlights()
         {
-            DateTime current = DateTime.Now;
-            //current = current.AddSeconds(20);
+            DateTime current = DateTime.Now;           
             string date = current.ToString("yyyy-MM-ddTHH:mm:ss") + "Z";
             List<Flights> flightsNow = new List<Flights>();
             flightsNow = dataBase.GetFlightsByDateTime(date);
@@ -149,7 +149,7 @@ namespace FlightControl.Tests
                 dataBase.DeleteFlightPlanFromTable(id);
             }
         }
-
+        // Function that returns true if it is a good test.
         private bool isGoodTest(int numberExpected, int notExpected)
         {
             int size = sizeFlights();
