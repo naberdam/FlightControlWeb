@@ -417,6 +417,13 @@ function highlightOnTable(flight) {
             break;
         }
     }
+    table = document.getElementById("extern_table");
+    for (var i = 0, row; row = table.rows[i]; i++) {
+        if (row.cells[0].innerHTML === flight.flight_id) {
+            row.style.backgroundColor = "aquamarine";
+            break;
+        }
+    }
 }
 
 function reset(selected) {
@@ -428,6 +435,13 @@ function reset(selected) {
 
 function resetFlightsTable(selected) {
     let table = document.getElementById("intern_table");
+    for (var i = 0, row; row = table.rows[i]; i++) {
+        if (row.cells[0].innerHTML === selected.flight_id) {
+            row.style.backgroundColor = "white";
+            break;
+        }
+    }
+    table = document.getElementById("extern_table");
     for (var i = 0, row; row = table.rows[i]; i++) {
         if (row.cells[0].innerHTML === selected.flight_id) {
             row.style.backgroundColor = "white";
