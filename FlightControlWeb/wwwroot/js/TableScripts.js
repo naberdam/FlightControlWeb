@@ -393,7 +393,6 @@ function addEventListnerToExtRows() {
                     target = target.parentElement;
                 }
                 var cells = target.cells; //cells collection
-                //var cells = target.getElementsByTagName('td'); //alternative
                 if (!cells.length || target.parentNode.nodeName == 'THEAD') { // if clicked row is within thead
                     return;
                 }
