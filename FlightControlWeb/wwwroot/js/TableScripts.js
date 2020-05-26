@@ -347,9 +347,7 @@ function addEventListnerToRows() {
                 let flightId;
                 flightId = cells[0].innerHTML;
                 let flight = findFlight(flightId);
-                //helper(flight);
                 helper(flight);
-                //alert(index);
             });
         }(index));
     }
