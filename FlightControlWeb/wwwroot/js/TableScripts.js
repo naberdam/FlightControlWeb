@@ -97,29 +97,35 @@ async function DisplayFlights() {
     //edit the command
     let flightsUrl = "../api/Flights?relative_to=" + dateTime
     let response = await fetch(flightsUrl)
-    response.status
-    let data = await response.json()
-    //initialize the flights table (removing the old flights) .
-    initializeTable();
-    let counter = 0;
-    data.forEach(function (flight) {
-        flights.push(flight);
-        if (selected != null && flight.flight_id == selected.flight_id) {
-            selected = flight;
-            $("#intern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
-                + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
-                + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() onclick=btnclick(this)>"
-                + "<img src=\"../images/Trash1.png\"></button></td></tr>")
-        } else {
-            $("#intern_table").append("<tr style=\"background-color: white\"> <td>"
-                + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
-                + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() >"
-                + "<img src=\"../images/Trash1.png\"></button></td></tr>")
-        }
-        showOnMap(flight);
-        counter++;
-    });
-    addEventListnerToRows()
+    if (response.status >= 300 || response.status < 200) {
+        alert("Error on server!\n");
+    }
+    try {
+        let data = await response.json()
+        //initialize the flights table (removing the old flights) .
+        initializeTable();
+        let counter = 0;
+        data.forEach(function (flight) {
+            flights.push(flight);
+            if (selected != null && flight.flight_id == selected.flight_id) {
+                selected = flight;
+                $("#intern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
+                    + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
+                    + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() onclick=btnclick(this)>"
+                    + "<img src=\"../images/Trash1.png\"></button></td></tr>")
+            } else {
+                $("#intern_table").append("<tr style=\"background-color: white\"> <td>"
+                    + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
+                    + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() >"
+                    + "<img src=\"../images/Trash1.png\"></button></td></tr>")
+            }
+            showOnMap(flight);
+            counter++;
+        });
+        addEventListnerToRows()
+    } catch (e) {
+        alert("Error in writint intern table.\n");
+    }
 }
 
 async function DisplayExtFlights() {
@@ -129,29 +135,35 @@ async function DisplayExtFlights() {
     let flightsUrl = "../api/Flights?relative_to=" + dateTime + "&sync_all";
     //$.getJSON(flightsUrl, function (data) 
     let response = await fetch(flightsUrl)
-    response.status
-    let data = await response.json();
-    //initialize the flights table (removing the old flights) .
-    initializeExtTable();
-    let counter = 0;
-    data.forEach(function (flight) {
-        if (flight.is_external === true) {
-            extFlights.push(flight);
-            if (selected != null && flight.flight_id == selected.flight_id) {
-                selected = flight;
-                $("#extern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
-                    + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
-                    + flight.passengers + "</td></tr>")
-            } else {
-                $("#extern_table").append("<tr style=\"background-color: white\"> <td>"
-                    + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
-                    + flight.passengers + "</td></tr>")
+    if (response.status >= 300 || response.status < 200) {
+        alert("Error in server!\n");
+    }
+    try {
+        let data = await response.json();
+        //initialize the flights table (removing the old flights) .
+        initializeExtTable();
+        let counter = 0;
+        data.forEach(function (flight) {
+            if (flight.is_external === true) {
+                extFlights.push(flight);
+                if (selected != null && flight.flight_id == selected.flight_id) {
+                    selected = flight;
+                    $("#extern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
+                        + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
+                        + flight.passengers + "</td></tr>")
+                } else {
+                    $("#extern_table").append("<tr style=\"background-color: white\"> <td>"
+                        + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
+                        + flight.passengers + "</td></tr>")
+                }
+                showOnMap(flight);
+                counter++;
             }
-            showOnMap(flight);
-            counter++;
-        }
-    });
-    addEventListnerToExtRows();
+        });
+        addEventListnerToExtRows();
+    } catch (e) {
+        alert("Error in writint extern table.\n");
+    }
 }
 
 async function checkIfSelectedNotNull(){
@@ -175,6 +187,11 @@ function btnclick(numOfRow) {
     document.getElementById("intern_table").deleteRow(numOfRow + 1);
     let url = "../api/Flights/" + id;
     let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (response.status >= 300 || response.status < 200) {
+            alert("Error in server!\n");
+        }
+    };
     xhr.open("DELETE", url, true);
     xhr.send();
 }
@@ -219,7 +236,10 @@ function showOnMap(flight) {
             if (this.readyState == 4 && this.status == 200) {
                 let flightPlan = JSON.parse(x.responseText);
                 $.ajax(activate(flight, marker, flightPlan));
-            } 
+            }
+            else if (response.status >= 300 || response.status < 200) {
+                alert("Error in server!\n");
+            }
         };
         x.open("GET", flightsUrl, true);
         x.send();
@@ -237,6 +257,9 @@ function rowClick(i) {
             let flight = JSON.parse(x.responseText);
             $.ajax(helper(flight));
         }
+        else if (response.status >= 300 || response.status < 200) {
+            alert("Error in server!\n");
+        }
     };
     xhr.open("GET", url, true);
     xhr.send();
@@ -252,6 +275,9 @@ function rowExClick(i) {
             let flight = JSON.parse(x.responseText);
             $.ajax(helper(flight));
         }
+        else if (response.status >= 300 || response.status < 200) {
+            alert("Error in server!\n");
+        }
     };
     xhr.open("GET", url, true);
     xhr.send();
@@ -266,6 +292,9 @@ function helper(flight) {
         if (this.readyState == 4 && this.status == 200) {
             let flightPlan = JSON.parse(x.responseText);
             $.ajax(activate(flight, marker, flightPlan));
+        }
+        else if (response.status >= 300 || response.status < 200) {
+            alert("Error in server!\n");
         }
     };
     x.open("GET", flightsUrl, true);
