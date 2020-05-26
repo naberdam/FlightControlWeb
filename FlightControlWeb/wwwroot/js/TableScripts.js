@@ -77,9 +77,9 @@ async function initializeExtTable() {
     let c2 = row.insertCell(2);
     c2.innerHTML = "Passengers";
     c2.style.fontWeight = 'bold'
-/*    let c3 = row.insertCell(3);
-    c3.innerHTML = "Delete";
-    c3.style.fontWeight = 'bold'*/
+    /*    let c3 = row.insertCell(3);
+        c3.innerHTML = "Delete";
+        c3.style.fontWeight = 'bold'*/
     extFlights = [];
 }
 
@@ -97,9 +97,11 @@ async function DisplayFlights() {
     //edit the command
     let flightsUrl = "../api/Flights?relative_to=" + dateTime
     let response = await fetch(flightsUrl)
-    if (response.status >= 300 || response.status < 200) {
+    if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
         alert("Error on server!\n");
     }
+    else if (response.status === 404)
+        return;
     try {
         let data = await response.json()
         //initialize the flights table (removing the old flights) .
@@ -124,7 +126,7 @@ async function DisplayFlights() {
         });
         addEventListnerToRows()
     } catch (e) {
-        alert("Error in writint intern table.\n");
+        alert("Error in writing intern table.\n");
     }
 }
 
@@ -135,9 +137,11 @@ async function DisplayExtFlights() {
     let flightsUrl = "../api/Flights?relative_to=" + dateTime + "&sync_all";
     //$.getJSON(flightsUrl, function (data) 
     let response = await fetch(flightsUrl)
-    if (response.status >= 300 || response.status < 200) {
-        alert("Error in server!\n");
+    if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+        alert("Error on server!\n");
     }
+    else if (response.status === 404)
+        return;
     try {
         let data = await response.json();
         //initialize the flights table (removing the old flights) .
@@ -166,7 +170,7 @@ async function DisplayExtFlights() {
     }
 }
 
-async function checkIfSelectedNotNull(){
+async function checkIfSelectedNotNull() {
     if (selected !== null) {
         let table = document.getElementById("tableFlights");
         if (table.rows.length > 1)
@@ -188,8 +192,8 @@ function btnclick(numOfRow) {
     let url = "../api/Flights/" + id;
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
-        if (response.status >= 300 || response.status < 200) {
-            alert("Error in server!\n");
+        if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+            alert("Error on server!\n");
         }
     };
     xhr.open("DELETE", url, true);
@@ -202,7 +206,7 @@ function showOnMap(flight) {
         scaledSize: new google.maps.Size(40, 40), // scaled size
         origin: new google.maps.Point(0, 0), // origin
     }
-    let icon = { 
+    let icon = {
         url: "../images/plane.png", // url
         scaledSize: new google.maps.Size(35, 35), // scaled size
         origin: new google.maps.Point(0, 0), // origin
@@ -237,8 +241,8 @@ function showOnMap(flight) {
                 let flightPlan = JSON.parse(x.responseText);
                 $.ajax(activate(flight, marker, flightPlan));
             }
-            else if (response.status >= 300 || response.status < 200) {
-                alert("Error in server!\n");
+            else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+                alert("Error on server!\n");
             }
         };
         x.open("GET", flightsUrl, true);
@@ -257,8 +261,8 @@ function rowClick(i) {
             let flight = JSON.parse(x.responseText);
             $.ajax(helper(flight));
         }
-        else if (response.status >= 300 || response.status < 200) {
-            alert("Error in server!\n");
+        else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+            alert("Error on server!\n");
         }
     };
     xhr.open("GET", url, true);
@@ -275,8 +279,8 @@ function rowExClick(i) {
             let flight = JSON.parse(x.responseText);
             $.ajax(helper(flight));
         }
-        else if (response.status >= 300 || response.status < 200) {
-            alert("Error in server!\n");
+        else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+            alert("Error on server!\n");
         }
     };
     xhr.open("GET", url, true);
@@ -293,8 +297,8 @@ function helper(flight) {
             let flightPlan = JSON.parse(x.responseText);
             $.ajax(activate(flight, marker, flightPlan));
         }
-        else if (response.status >= 300 || response.status < 200) {
-            alert("Error in server!\n");
+        else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+            alert("Error on server!\n");
         }
     };
     x.open("GET", flightsUrl, true);
