@@ -684,10 +684,12 @@ namespace FlightControl
                 url += "/api/Flights?relative_to=" + stringDateTime;
                 List<Flights> flightsFromOtherServer = await GetGenericFromAnotherServer<List<Flights>>(url);
                 CreateOrDeleteSQLFlightFromOtherServer(flightsFromOtherServer, serverIdList[i].ServerId);
+                if (flightsFromOtherServer == null) { continue; }
                 flightsFromOtherServer = ChangeToExternal(flightsFromOtherServer);
                 // If flightsFromOtherServer is not null, so merge between the lists.
                 flightsListFromAllExternalServers.AddRange(flightsFromOtherServer);
             }
+            if (flightsListFromAllExternalServers.Count == 0) { return null; }
             return flightsListFromAllExternalServers;
         }
         // Function that checks if the last char in url is '/', and if it is correct then delete it.
@@ -704,7 +706,11 @@ namespace FlightControl
         {
             mutexOfFlightsFromServer.WaitOne();
             DeleteLineFromTable("DELETE FROM FlightsFromExternalServersSQL WHERE ServerId=\"" + idOfServer + "\"");
-            if (flightsFromOtherServer == null) { return; }
+            if (flightsFromOtherServer == null) 
+            {
+                mutexOfFlightsFromServer.ReleaseMutex();
+                return; 
+            }
             int i = 0;
             /* bool isThereAtLeastOneCorrectFlight = false;*/
             for (; i < flightsFromOtherServer.Count; ++i)
