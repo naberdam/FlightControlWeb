@@ -499,6 +499,7 @@ function resetDetailsTable() {
         table.deleteRow(1);
 }
 
+
 function removePath() {
     let path = flightPath.getPath();
     path = [];
