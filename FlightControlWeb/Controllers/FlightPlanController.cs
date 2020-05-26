@@ -23,17 +23,7 @@ namespace FlightControl.Controllers
         [HttpGet("{id}", Name = "GetFlightPlan")]
         public async Task<ActionResult> GetFlightPlan(string id)
         {
-            FlightPlan flightPlan = new FlightPlan();
-            string urlRequest = Request.Path;
-            string patternWithoutSync = @"^/api/FlightPlan/[a-zA-Z]{2}[0-9]{5}[a-zA-Z]{3}$";
-            if (Regex.IsMatch(urlRequest, patternWithoutSync))
-            {
-                flightPlan = await flightPlanManager.GetFlightPlanById(id);
-            }
-            else
-            {
-                flightPlan = null;
-            }
+            FlightPlan flightPlan = await flightPlanManager.GetFlightPlanById(id);
             if (flightPlan != null)
             {
                 return Ok(flightPlan);
