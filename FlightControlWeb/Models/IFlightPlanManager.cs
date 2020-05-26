@@ -8,9 +8,9 @@ namespace FlightControl.Models
 {
     public interface IFlightPlanManager
     {
-        FlightPlan GetFlightPlanById(string id);
-        Task<FlightPlan> GetFlightPlanByIdAndSync(string id);
+        Task<FlightPlan> GetFlightPlanById(string id);
+        /*Task<FlightPlan> GetFlightPlanByIdAndSync(string id);*/
         string AddFlightPlan(FlightPlan flightPlan);
-        bool DeleteFlightPlanById(string id);
+        /*bool DeleteFlightPlanById(string id);*/
     }
 }

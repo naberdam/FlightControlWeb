@@ -25,7 +25,7 @@ namespace FlightControl.Tests
             }
             catch (Exception e)
             {
-
+                e=null;
             }
         }
 
@@ -85,6 +85,37 @@ namespace FlightControl.Tests
             {
                 Assert.Fail("There is a problem with the input");
                 Console.WriteLine("There is a problem with the input");
+            }
+            // Check the Methood GetFlightPlanById.
+            if (dataBase.GetFlightPlanById("111111111111111111") != null)
+            {
+                Assert.Fail("Problem in get flight by Id");
+            }
+            string id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            if (dataBase.GetFlightPlanById(id) == null)
+            {
+                Assert.Fail("Problem in get flight by Id");
+            }
+
+            // Check the Methood DeleteFlightPlanFromTable.
+            id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            int size = sizeFlights();
+            dataBase.DeleteFlightPlanFromTable(id);
+            if (sizeFlights() != (size - 1))
+            {
+                Assert.Fail("Problem in erasing flights");
+            }
+
+            if (dataBase.GetFlightPlanById("111111111111111111") != null)
+            {
+                Assert.Fail("Problem in get flight by Id");
+            }
+
+            // Check the Methood GetFlightPlanByIdAndSync.
+            id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            if (dataBase.GetFlightPlanById(id) == null)
+            {
+                Assert.Fail("Problem in get flight by Id");
             }
         }
         private int sizeFlights()

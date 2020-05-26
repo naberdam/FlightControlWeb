@@ -13,101 +13,168 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using FlightControlWeb;
+using System.Net.Http;
 
 namespace FlightControl
 {
     public class SqliteDataBase : IDataBase
     {
-        private SqliteConnection myConnection;
-        private Mutex mutex;
+        private static SqliteConnection myConnection;
+        private static Mutex mutexOfConnection;
+        private static Mutex mutexOfConvertToDateTime;
+        private static Mutex mutexOfGetLineInformation;
+        private static Mutex mutexOfGetListInformation;
+        private static Mutex mutexOfIdListActivated;
+        private static Mutex mutexOfCreateFlights;
+        private static Mutex mutexOfFlightsFromServer;
+        // Constructor with default name to the sqlite.
         public SqliteDataBase()
         {
-            mutex = new Mutex();
-            SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder();
-            // The path of our sqlite that we want to create.
-            connectionStringBuilder.DataSource = AppDomain.CurrentDomain.BaseDirectory + @"\Database.sqlite";
+            CreateMutex();
+            SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder
+            {
+                // The path of our sqlite that we want to create.
+                DataSource = AppDomain.CurrentDomain.BaseDirectory + @"\Database.sqlite"
+            };
             myConnection = new SqliteConnection(connectionStringBuilder.ConnectionString);
-            OpenConnection();
+            CreateSQLTableInTheBeginning();
+        }
+        // Constructor that contains the name of sqlite database.
+        public SqliteDataBase(string nameOfSqlite)
+        {
+            SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder
+            {
+                // The path of our sqlite that we want to create.
+                DataSource = AppDomain.CurrentDomain.BaseDirectory + @"\" + nameOfSqlite
+            };
+            myConnection = new SqliteConnection(connectionStringBuilder.ConnectionString);
+            CreateSQLTableInTheBeginning();
+        }
+        // Function that creates in the beginning the SQL tables that we will use in our data base.
+        private void CreateSQLTableInTheBeginning()
+        {
             // Create FlightPlanSQL table.
             CreateNewSQLTable("CREATE TABLE IF NOT EXISTS FlightPlanSQL (Id TEXT PRIMARY KEY NOT NULL, Passengers INTEGER, Company_name TEXT NOT NULL, Is_external TEXT NOT NULL)");
             // Create InitialLocationSQL table.
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS InitialLocationSQL (Id TEXT PRIMARY KEY, Longitude REAL, Latitude REAL , Date_Time TEXT NOT NULL )");
+            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS InitialLocationSQL (Id TEXT PRIMARY KEY, Longitude REAL , Latitude REAL , Date_Time TEXT NOT NULL )");
             // Create SegmentSQL table.
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS SegmentSQL (Id TEXT NOT NULL, Longitude REAL , Latitude REAL , Timespan_Seconds REAL NOT NULL)");
-            // Create Servers table.
+            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS SegmentSQL (Id TEXT NOT NULL, Longitude REAL , Latitude REAL , Timespan_Seconds REAL NOT NULL )");
+            // Create ServersSQL table.
             CreateNewSQLTable("CREATE TABLE IF NOT EXISTS ServersSQL(ServerId TEXT PRIMARY KEY, ServerURL TEXT NOT NULL)");
-            CloseConnection();
+            // Create FlightsFromExternalServersSQL table.
+            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS FlightsFromExternalServersSQL (ServerId TEXT NOT NULL, IdFlight TEXT NOT NULL)");
         }
-        public SqliteDataBase(string nameOfSqlite)
+        // Function that creates the mutexes.
+        private void CreateMutex()
         {
-            mutex = new Mutex();
-            SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder();
-            // The path of our sqlite that we want to create.
-            connectionStringBuilder.DataSource = AppDomain.CurrentDomain.BaseDirectory + @"\" + nameOfSqlite;
-            myConnection = new SqliteConnection(connectionStringBuilder.ConnectionString);
-            OpenConnection();
-            // Create FlightPlanSQL table.
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS FlightPlanSQL (Id TEXT PRIMARY KEY NOT NULL, Passengers INTEGER DEFAULT 0, Company_name TEXT NOT NULL, Is_external TEXT NOT NULL)");
-            // Create InitialLocationSQL table.
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS InitialLocationSQL (Id TEXT PRIMARY KEY, Longitude REAL DEFAULT 34.881505 , Latitude REAL DEFAULT 31.997999, Date_Time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
-            // Create SegmentSQL table.
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS SegmentSQL (Id TEXT NOT NULL, Longitude REAL DEFAULT 34.881505 , Latitude REAL DEFAULT 31.997999, Timespan_Seconds REAL NOT NULL DEFAULT 0)");
-            // Create Servers table.
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS ServersSQL(ServerId TEXT PRIMARY KEY, ServerURL TEXT NOT NULL)");
-            CloseConnection();
+            mutexOfConnection = new Mutex();
+            mutexOfConvertToDateTime = new Mutex();
+            mutexOfGetLineInformation = new Mutex();
+            mutexOfGetListInformation = new Mutex();
+            mutexOfIdListActivated = new Mutex();
+            mutexOfCreateFlights = new Mutex();
+            mutexOfFlightsFromServer = new Mutex();
         }
         // Create new SQL table using a text that contains the comaptible creation command.
         private void CreateNewSQLTable(string commandOfCreatingSQLTable)
         {
-            SqliteCommand tableCommand = myConnection.CreateCommand();
-            tableCommand.CommandText = commandOfCreatingSQLTable;
+            OpenConnection();
+            SqliteCommand tableCommand = SetSqliteCommand(commandOfCreatingSQLTable);
             try
             {
                 tableCommand.ExecuteReader();
             }
             catch (Exception) { }
+            CloseConnection();
+
         }
-        // Delete SQL table using a text that contains the comaptible creation command.
+        /*// Delete SQL table using a text that contains the comaptible creation command.
         private void DeleteSQLTable(string commandOfCreatingSQLTable)
         {
             OpenConnection();
-            SqliteCommand tableCommand = myConnection.CreateCommand();
-            tableCommand.CommandText = commandOfCreatingSQLTable;
+            SqliteCommand tableCommand = SetSqliteCommand(commandOfCreatingSQLTable);
             try
             {
                 tableCommand.ExecuteNonQuery();
             }
             catch (Exception) { }
-            finally
-            {
-                CloseConnection();
-            }
+            CloseConnection();
 
-        }
+        }*/
         // Adding flightPlan to our SQL tables, and returns the id.
         public string AddFlightPlan(FlightPlan flightPlan)
         {
-            if (flightPlan.Location == null || flightPlan.Segments == null) { return null; }
+            //
+            if (!CheckFlightPlan(flightPlan)) { return null; }
             OpenConnection();
             // Random id.
             string id = SetRandId();
-            bool succeedToAddFlightPlan;
-            succeedToAddFlightPlan = AddToFlightPlanTable(flightPlan, id);
-            if (!succeedToAddFlightPlan) { return null; }
-            succeedToAddFlightPlan = AddToInitialLocationTable(flightPlan, id);
-            if (!succeedToAddFlightPlan) { return null; }
-            succeedToAddFlightPlan = AddListToSegmentTable(flightPlan.Segments, id);
-            if (!succeedToAddFlightPlan) { return null; }
+            bool succeedToAddToFlightPlanSQL, succeedToAddToInitialLocationSQL, succeedToAddToSegmentSQL;
+            // Check if add to FlightPlanSQL table succeed.
+            succeedToAddToFlightPlanSQL = AddToFlightPlanTable(flightPlan, id);
+            if (!succeedToAddToFlightPlanSQL)
+            {
+                CloseConnection();
+                return null;
+            }
+            // Check if add to InitialLocationSQL table succeed.
+            succeedToAddToInitialLocationSQL = AddToInitialLocationTable(flightPlan, id);
+            if (!succeedToAddToInitialLocationSQL)
+            {
+                CloseConnection();
+                return null;
+            }
+            // Check if add to SegmentSQL table succeed.
+            succeedToAddToSegmentSQL = AddListToSegmentTable(flightPlan.Segments, id);
+            if (!succeedToAddToSegmentSQL)
+            {
+                CloseConnection();
+                return null;
+            }
             CloseConnection();
             return id;
         }
+        // Function that checks if the givven flightplan is good.
+        private bool CheckFlightPlan(FlightPlan flightPlan)
+        {
+            if (flightPlan == null) { return false; }
+            if (flightPlan.Location == null
+                || flightPlan.Segments == null
+                || flightPlan.Company_name == null
+                || flightPlan.Passengers <= 0) { return false; }
+            if (flightPlan.Location.Date_Time == default
+                /*|| flightPlan.Location.Latitude == default
+                || flightPlan.Location.Longitude == default*/) { return false; }
+            int i = 0;
+            for (; i < flightPlan.Segments.Count; ++i)
+            {
+                if (/*flightPlan.Segments[i].Latitude == default
+                    || flightPlan.Segments[i].Longitude == default
+                    ||*/ flightPlan.Segments[i].Timespan_Seconds <= 0) { return false; }
+            }
+            return true;
+        }
+        private bool CheckFlights(Flights flight)
+        {
+            if (flight == null) { return false; }
+            if (flight.Company_name == default
+                || flight.Date_time == default
+                || flight.Flight_id == default
+                /*|| flight.Is_external == default */
+                /*|| flight.Latitude == default
+                || flight.Longitude == default*/
+                || flight.Passengers <= 0) { return false; }
+            return true;
+
+        }
+        // Function that creates random id for FlightPlan.
         private string SetRandId()
         {
             Random random = new Random();
             long randomNumber = random.Next(100000, 1000000000);
             return CreateRandomLetters(2) + randomNumber.ToString().Substring(0, 5) + CreateRandomLetters(3);
         }
-
+        // Function that creates random letters according to the givven length.
         private string CreateRandomLetters(int length)
         {
             Random random = new Random();
@@ -180,7 +247,7 @@ namespace FlightControl
             }
         }
         // Function that returns FlightPlan according to the given id.
-        public FlightPlan GetFlightPlanById(string id)
+        public async Task<FlightPlan> GetFlightPlanById(string id)
         {
             // Take the line from FlightPlanSQL which the Id equals to id.
             object[] lineFlightPlanSQL = GetLineInformationFromSQLWithCommand("SELECT * FROM FlightPlanSQL WHERE Id=\"" + id + "\"");
@@ -189,13 +256,6 @@ namespace FlightControl
             {
                 return SetFlightPlanByListObjects(lineFlightPlanSQL, id);
             }
-            return null;
-        }
-        // Function that returns FlightPlan according to the given id in our database and in the other servers.
-        public async Task<FlightPlan> GetFlightPlanByIdAndSync(string id)
-        {
-            FlightPlan flightPlan = GetFlightPlanById(id);
-            if (flightPlan != null) { return flightPlan; }
             List<Server> listOfExternalServers = GetExternalServers();
             if (listOfExternalServers == null)
             {
@@ -204,12 +264,14 @@ namespace FlightControl
             int i = 0;
             for (; i < listOfExternalServers.Count; ++i)
             {
-                object[] idFlightFromExternalServer = GetLineInformationFromSQLWithCommand("SELECT IdFlight FROM " + listOfExternalServers[i].ServerId + " WHERE IdFlight=\"" + id + "\"");
+                mutexOfFlightsFromServer.WaitOne();
+                object[] idFlightFromExternalServer = GetLineInformationFromSQLWithCommand("SELECT IdFlight FROM FlightsFromExternalServersSQL WHERE IdFlight=\"" + id + "\"");
+                mutexOfFlightsFromServer.ReleaseMutex();
                 if (idFlightFromExternalServer == null) { continue; }
                 string url = GetUrlWithoutSlashInTheEnd(listOfExternalServers[i].ServerURL);
-                url += "api/FlightPlan/" + id;
+                url += "/api/FlightPlan/" + id;
                 FlightPlan flightPlanFromExternalServer = await GetGenericFromAnotherServer<FlightPlan>(url);
-                if (idFlightFromExternalServer != null) { return flightPlanFromExternalServer; }
+                if (flightPlanFromExternalServer != null) { return flightPlanFromExternalServer; }
             }
             return null;
         }
@@ -237,6 +299,7 @@ namespace FlightControl
             {
                 SqliteDataReader sqliteDataReader = getFlightByIdCommand.ExecuteReader();
                 List<object[]> list = new List<object[]>();
+                mutexOfGetListInformation.WaitOne();
                 // While there is something to read.
                 while (sqliteDataReader.Read())
                 {
@@ -245,6 +308,7 @@ namespace FlightControl
                     sqliteDataReader.GetValues(lineInformationFromSQL);
                     list.Add(lineInformationFromSQL);
                 }
+                mutexOfGetListInformation.ReleaseMutex();
                 // Close connection
                 sqliteDataReader.Close();
                 CloseConnection();
@@ -267,15 +331,18 @@ namespace FlightControl
             {
                 SqliteDataReader sqliteDataReader = getFlightByIdCommand.ExecuteReader();
                 object[] lineInformationFromSQL = new object[sqliteDataReader.FieldCount];
+                mutexOfGetLineInformation.WaitOne();
                 // If there is something to read.
                 if (sqliteDataReader.Read())
                 {
                     // Set lineInformationFromSQL with the compatible values and add row to list.
                     sqliteDataReader.GetValues(lineInformationFromSQL);
                     sqliteDataReader.Close();
+                    mutexOfGetLineInformation.ReleaseMutex();
                     CloseConnection();
                     return lineInformationFromSQL;
                 }
+                mutexOfGetLineInformation.ReleaseMutex();
                 // Close connection.
                 CloseConnection();
                 return null;
@@ -313,9 +380,7 @@ namespace FlightControl
         private void DeleteLineFromTable(string textCommand)
         {
             OpenConnection();
-            SqliteCommand deleteCommand = new SqliteCommand();
-            deleteCommand.Connection = myConnection;
-            deleteCommand.CommandText = textCommand;
+            SqliteCommand deleteCommand = SetSqliteCommand(textCommand);
             try
             {
                 deleteCommand.ExecuteReader();
@@ -477,11 +542,14 @@ namespace FlightControl
         // Function that creates Flight.
         public Flights CreateFlight(string isExternal, string id, string dateTime)
         {
+            mutexOfCreateFlights.WaitOne();
             // Set variables according to the given id.
             object[] longitude = GetLineInformationFromSQLWithCommand("SELECT Longitude FROM InitialLocationSQL WHERE id=\"" + id + "\"");
             object[] latitude = GetLineInformationFromSQLWithCommand("SELECT Latitude FROM InitialLocationSQL WHERE id=\"" + id + "\"");
             object[] passengers = GetLineInformationFromSQLWithCommand("SELECT Passengers FROM FlightPlanSQL WHERE id=\"" + id + "\"");
             object[] companyName = GetLineInformationFromSQLWithCommand("SELECT Company_name FROM FlightPlanSQL WHERE id=\"" + id + "\"");
+            mutexOfCreateFlights.ReleaseMutex();
+            bool isExternalBoolean = CreateBooleanIsExternal(isExternal);
             // Set new Flight.
             return new Flights
             {
@@ -491,8 +559,16 @@ namespace FlightControl
                 Passengers = Convert.ToInt32(passengers[0].ToString()),
                 Company_name = companyName[0].ToString(),
                 Date_time = dateTime,
-                Is_external = isExternal
+                Is_external = isExternalBoolean
             };
+        }
+        private bool CreateBooleanIsExternal(string isExternal)
+        {
+            if (isExternal.Equals("true"))
+            {
+                return true;
+            }
+            return false;
         }
         // Function that returns id list of the external/internal flights according to the given isExternal.
         public List<string> GetIdListOfExternalOrInternal(string isExternal)
@@ -514,6 +590,7 @@ namespace FlightControl
             int i = 0;
             List<string> idListOfActivatedFlights = new List<string>();
             if (idListOfExternalOrInternal == null) { return null; }
+            mutexOfIdListActivated.WaitOne();
             for (; i < idListOfExternalOrInternal.Count; ++i)
             {
                 object[] rowOfId = GetLineInformationFromSQLWithCommand("SELECT * FROM InitialLocationSQL WHERE Id=\"" + idListOfExternalOrInternal[i] + "\"");
@@ -527,6 +604,7 @@ namespace FlightControl
                     }
                 }
             }
+            mutexOfIdListActivated.ReleaseMutex();
             return idListOfActivatedFlights;
         }
         // Boolean function that returns true or false about if the flight is already started.
@@ -548,7 +626,7 @@ namespace FlightControl
             // Sum the Timespan_Seconds for calculating the finish time of flight.
             object[] sumOfTimespanSeconds = GetLineInformationFromSQLWithCommand("SELECT SUM(Timespan_Seconds) FROM SegmentSQL WHERE Id=\"" + rowOfId[0].ToString() + "\"");
             // Problem with specific id.
-            if (sumOfTimespanSeconds == null)
+            if (sumOfTimespanSeconds == null || sumOfTimespanSeconds[0] == System.DBNull.Value)
             {
                 return false;
             }
@@ -556,19 +634,27 @@ namespace FlightControl
             DateTime dateTimeOfFinishFlight = dateTimeOfFlightPlan.AddSeconds(seconds);
             // Check if flight finished before the dateTimeFromClient. If it is less then zero, so it is false.
             // Else, return true, because it did not finish yet.
-            return !(DateTime.Compare(dateTimeOfFinishFlight, dateTimeFromClient) < 0);
+            if (DateTime.Compare(dateTimeOfFinishFlight, dateTimeFromClient) < 0)
+            {
+                return false;
+            }
+            return true;
         }
         // Function that add server to Servers.
         public string AddServer(Server server)
         {
-            server.ServerId = SetRandId();
             OpenConnection();
-            AddToServersSQL(server);
+            bool succeedAddServer = AddToServersSQL(server);
+            if (!succeedAddServer)
+            {
+                CloseConnection();
+                return null;
+            }
             CloseConnection();
             return server.ServerId;
         }
         // Function that responsible on the communication with Servers in order to add server to Servers.
-        private void AddToServersSQL(Server server)
+        private bool AddToServersSQL(Server server)
         {
             SqliteCommand addServersTableCommand = SetSqliteCommand("INSERT INTO ServersSQL VALUES (@ServerId , @ServerURL)");
             addServersTableCommand.Parameters.AddWithValue("@ServerId", server.ServerId);
@@ -576,8 +662,12 @@ namespace FlightControl
             try
             {
                 addServersTableCommand.ExecuteReader();
+                return true;
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                return false;
+            }
         }
         // Function that returns all the flights from the external servers.
         private async Task<List<Flights>> GetFlightsFromServersTable(string stringDateTime)
@@ -591,7 +681,7 @@ namespace FlightControl
             {
                 // Set the url for getting the flight list.
                 string url = GetUrlWithoutSlashInTheEnd(serverIdList[i].ServerURL);
-                url += "/api/Flight?relative_to=" + stringDateTime;
+                url += "/api/Flights?relative_to=" + stringDateTime;
                 List<Flights> flightsFromOtherServer = await GetGenericFromAnotherServer<List<Flights>>(url);
                 CreateOrDeleteSQLFlightFromOtherServer(flightsFromOtherServer, serverIdList[i].ServerId);
                 flightsFromOtherServer = ChangeToExternal(flightsFromOtherServer);
@@ -612,50 +702,65 @@ namespace FlightControl
         // Function that deletes and creates a table in the name of ServerId and updates the fields.
         private void CreateOrDeleteSQLFlightFromOtherServer(List<Flights> flightsFromOtherServer, string idOfServer)
         {
-            DeleteSQLTable("DROP TABLE IF EXISTS " + idOfServer);
+            mutexOfFlightsFromServer.WaitOne();
+            DeleteLineFromTable("DELETE FROM FlightsFromExternalServersSQL WHERE ServerId=\"" + idOfServer + "\"");
             if (flightsFromOtherServer == null) { return; }
-            OpenConnection();
-            CreateNewSQLTable("CREATE TABLE IF NOT EXISTS " + idOfServer + " (IdFlight TEXT PRIMARY KEY NOT NULL)");
             int i = 0;
+            /* bool isThereAtLeastOneCorrectFlight = false;*/
             for (; i < flightsFromOtherServer.Count; ++i)
             {
-                AddFlightIdToNameOfServerSQL(flightsFromOtherServer[i].Flight_id, idOfServer);
+                if (!CheckFlights(flightsFromOtherServer[i])) { continue; }
+                /*// Check if there is at least one correct flight.
+                if (!isThereAtLeastOneCorrectFlight) { isThereAtLeastOneCorrectFlight = true; }*/
+                AddFlightIdToFlightsFromExternalServersSQL(flightsFromOtherServer[i].Flight_id, idOfServer);
             }
-            CloseConnection();
+            mutexOfFlightsFromServer.ReleaseMutex();
         }
         // Function that responsible on the communication with Servers in order to add server to Servers.
-        private void AddFlightIdToNameOfServerSQL(string flightId, string idOfServer)
+        private void AddFlightIdToFlightsFromExternalServersSQL(string flightId, string idOfServer)
         {
-            SqliteCommand addServersTableCommand = SetSqliteCommand("INSERT INTO " + idOfServer + " VALUES (@IdFlight)");
+            OpenConnection();
+            SqliteCommand addServersTableCommand = SetSqliteCommand("INSERT INTO FlightsFromExternalServersSQL VALUES (@ServerId , @IdFlight)");
+            addServersTableCommand.Parameters.AddWithValue("@ServerId", idOfServer);
             addServersTableCommand.Parameters.AddWithValue("@IdFlight", flightId);
             try
             {
                 addServersTableCommand.ExecuteReader();
             }
             catch (Exception) { }
+            CloseConnection();
         }
         // Generic function that returns list of information from one external server, while asking from http
         // The information we want to get.
         private async Task<T> GetGenericFromAnotherServer<T>(string externalUrlServer)
         {
-            string url = String.Format(externalUrlServer);
-            WebRequest requestObject = WebRequest.Create(url);
-            requestObject.Method = "GET";
-            HttpWebResponse responseObject = null;
-            responseObject = (HttpWebResponse)await requestObject.GetResponseAsync();
             string resultTest = null;
-            // Get the data from the url.
-            using (Stream stream = responseObject.GetResponseStream())
+            using (HttpClient httpClient = new HttpClient())
             {
-                StreamReader streamReader = new StreamReader(stream);
-                resultTest = streamReader.ReadToEnd();
-                streamReader.Close();
+                TimeSpan timeout = new TimeSpan(0, 0, 20);
+                httpClient.Timeout = timeout;
+
+                try
+                {
+                    resultTest = await httpClient.GetStringAsync(externalUrlServer);
+                }
+                catch (Exception)
+                {
+                    return default;
+                }
             }
             // If there is not information then return null.
             if (resultTest == null || resultTest == "") { return default; }
             // Otherwise, we need to deserialize the string we have.
-            T genericListFromHttpResponse = JsonConvert.DeserializeObject<T>(resultTest);
-            return genericListFromHttpResponse;
+            try
+            {
+                T genericListFromHttpResponse = JsonConvert.DeserializeObject<T>(resultTest);
+                return genericListFromHttpResponse;
+            }
+            catch (Exception)
+            {
+                return default;
+            }
         }
         // Function that changes the property Is_external to true.
         private List<Flights> ChangeToExternal(List<Flights> flightList)
@@ -663,7 +768,7 @@ namespace FlightControl
             // Update Is_external to be "true".
             foreach (Flights item in flightList)
             {
-                item.Is_external = "true";
+                item.Is_external = true;
             }
             return flightList;
         }
@@ -690,11 +795,13 @@ namespace FlightControl
             object[] idServer = GetLineInformationFromSQLWithCommand("SELECT ServerId FROM ServersSQL WHERE ServerId=\"" + id + "\"");
             if (idServer == null) { return false; }
             DeleteLineFromTable("DELETE FROM ServersSQL WHERE ServerId=\"" + id + "\"");
+            DeleteLineFromTable("DELETE FROM FlightsFromExternalServersSQL WHERE ServerId=\"" + id + "\"");
             return true;
         }
         // Function that takes a string that represents the dateTime and turns it to varaible in typeOf DateTime.
         private DateTime ConvertToDateTime(string stringDateTime)
         {
+            mutexOfConvertToDateTime.WaitOne();
             // The pattern we asked for.
             string pattern = @"(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z";
             if (Regex.IsMatch(stringDateTime, pattern))
@@ -706,24 +813,26 @@ namespace FlightControl
                 int hour = Convert.ToInt32(match.Groups[4].Value);
                 int minute = Convert.ToInt32(match.Groups[5].Value);
                 int second = Convert.ToInt32(match.Groups[6].Value);
+                mutexOfConvertToDateTime.ReleaseMutex();
                 return new DateTime(year, month, day, hour, minute, second);
             }
             else
             {
-                throw new Exception("Unable to parse.");
+                mutexOfConvertToDateTime.ReleaseMutex();
+                return default;
             }
         }
         // Function for openning the connection, if the connection is not already open.
         public void OpenConnection()
         {
-            mutex.WaitOne();
+            mutexOfConnection.WaitOne();
             myConnection.Open();
         }
         // Function for closing the connection, if the connection is not already close.
         public void CloseConnection()
         {
             myConnection.Close();
-            mutex.ReleaseMutex();
+            mutexOfConnection.ReleaseMutex();
         }
     }
 }

@@ -24,19 +24,19 @@ namespace FlightControl.Models
             return sqliteDataBase.AddFlightPlan(flightPlan);
         }
 
-        public FlightPlan GetFlightPlanById(string id)
+        public async Task<FlightPlan> GetFlightPlanById(string id)
         {
-            return sqliteDataBase.GetFlightPlanById(id);
+            return await sqliteDataBase.GetFlightPlanById(id);
         }
 
-        public bool DeleteFlightPlanById(string id)
+        /*public bool DeleteFlightPlanById(string id)
         {
             return sqliteDataBase.DeleteFlightPlanFromTable(id);
-        }
+        }*/
 
-        public async Task<FlightPlan> GetFlightPlanByIdAndSync(string id)
+        /*public async Task<FlightPlan> GetFlightPlanByIdAndSync(string id)
         {
             return await sqliteDataBase.GetFlightPlanByIdAndSync(id);
-        }
+        }*/
     }
 }

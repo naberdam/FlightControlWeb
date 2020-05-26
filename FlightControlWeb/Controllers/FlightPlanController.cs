@@ -25,16 +25,10 @@ namespace FlightControl.Controllers
         {
             FlightPlan flightPlan;
             string urlRequest = Request.Path;
-            string patternAndSync = @"^/api/FlightPlan/[a-zA-Z]{2}[0-9]{5}[a-zA-Z]{3}&sync_all$";
             string patternWithoutSync = @"^/api/FlightPlan/[a-zA-Z]{2}[0-9]{5}[a-zA-Z]{3}$";
-            if (Regex.IsMatch(urlRequest, patternAndSync))
+            if (Regex.IsMatch(urlRequest, patternWithoutSync))
             {
-                id = id.Substring(0, 10);
-                flightPlan = await flightPlanManager.GetFlightPlanByIdAndSync(id);
-            }
-            else if (Regex.IsMatch(urlRequest, patternWithoutSync))
-            {
-                flightPlan = flightPlanManager.GetFlightPlanById(id);
+                flightPlan = await flightPlanManager.GetFlightPlanById(id);
             }
             else
             {

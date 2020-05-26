@@ -83,7 +83,7 @@ async function initializeExtTable() {
     extFlights = [];
 }
 
-setInterval(Display, 10000);
+setInterval(Display, 1000);
 
 async function Display() {
     resetMarkers();
@@ -213,7 +213,7 @@ function showOnMap(flight) {
     });
 
     google.maps.event.addListener(marker, 'click', function (marker) {
-        let flightsUrl = "../api/FlightPlan/" + flight.flight_id + "&sync_all";
+        let flightsUrl = "../api/FlightPlan/" + flight.flight_id;
         let x = new XMLHttpRequest();
         x.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -230,7 +230,7 @@ function rowClick(i) {
     let table = document.getElementById("intern_table");
     let id = table.rows[i].cells[0].innerHTML;
     let xhr = new XMLHttpRequest();
-    let url = "../api/Flights/" + id + "&sync_all";
+    let url = "../api/Flights/" + id;
     activate(flight, marker, flightPlan);
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -243,7 +243,7 @@ function rowClick(i) {
 }
 
 function helper(flight) {
-    let flightsUrl = "../api/FlightPlan/" + flight.flight_id + "&sync_all";
+    let flightsUrl = "../api/FlightPlan/" + flight.flight_id;
     let x = new XMLHttpRequest();
     let id = flight.flight_id
     let marker = findMarker(id);

@@ -12,8 +12,8 @@ namespace FlightControlWeb
         List<Flights> GetFlightsByDateTime(string stringDateTime);
         Task<List<Flights>> GetFlightsByDateTimeAndSync(string stringDateTime);
         string AddFlightPlan(FlightPlan flightPlan);
-        FlightPlan GetFlightPlanById(string id);
-        Task<FlightPlan> GetFlightPlanByIdAndSync(string id);
+        Task<FlightPlan> GetFlightPlanById(string id);
+        /*Task<FlightPlan> GetFlightPlanByIdAndSync(string id);*/
         bool DeleteServer(string id);
         List<Server> GetExternalServers();
         string AddServer(Server server);

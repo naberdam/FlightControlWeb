@@ -40,7 +40,7 @@ namespace FlightControl.Models
             get;
             set;
         }
-        public string Is_external
+        public bool Is_external
         {
             get;
             set;
