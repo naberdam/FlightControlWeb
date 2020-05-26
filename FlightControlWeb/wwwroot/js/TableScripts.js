@@ -151,7 +151,7 @@ async function DisplayExtFlights() {
             counter++;
         }
     });
-    addEventListnerToExtRows()
+    addEventListnerToExtRows();
 }
 
 async function checkIfSelectedNotNull(){
@@ -241,6 +241,21 @@ function rowClick(i) {
     xhr.open("GET", url, true);
     xhr.send();
 }
+function rowExClick(i) {
+    let table = document.getElementById("extern_table");
+    let id = table.rows[i].cells[0].innerHTML;
+    let xhr = new XMLHttpRequest();
+    let url = "../api/Flights/" + id;
+    activate(flight, marker, flightPlan);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let flight = JSON.parse(x.responseText);
+            $.ajax(helper(flight));
+        }
+    };
+    xhr.open("GET", url, true);
+    xhr.send();
+}
 
 function helper(flight) {
     let flightsUrl = "../api/FlightPlan/" + flight.flight_id;
@@ -270,6 +285,13 @@ function findFlight(id) {
     for (i = 0; i < flights.length; i++) {
         if (flights[i].flight_id == id)
             return flights[i];
+    }
+}
+function findExFlight(id) {
+    let i;
+    for (i = 0; i < extFlights.length; i++) {
+        if (extFlights[i].flight_id == id)
+            return extFlights[i];
     }
 }
 
@@ -350,7 +372,7 @@ function addEventListnerToExtRows() {
                 }
                 let flightId;
                 flightId = cells[0].innerHTML;
-                let flight = findFlight(flightId);
+                let flight = findExFlight(flightId);
                 //helper(flight);
                 helper(flight);
                 //alert(index);
