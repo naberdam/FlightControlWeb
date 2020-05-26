@@ -77,13 +77,13 @@ async function initializeExtTable() {
     let c2 = row.insertCell(2);
     c2.innerHTML = "Passengers";
     c2.style.fontWeight = 'bold'
-    let c3 = row.insertCell(3);
+/*    let c3 = row.insertCell(3);
     c3.innerHTML = "Delete";
-    c3.style.fontWeight = 'bold'
+    c3.style.fontWeight = 'bold'*/
     extFlights = [];
 }
 
-setInterval(Display, 1000);
+setInterval(Display, 2000);
 
 async function Display() {
     resetMarkers();
@@ -130,12 +130,12 @@ async function DisplayExtFlights() {
     //$.getJSON(flightsUrl, function (data) 
     let response = await fetch(flightsUrl)
     response.status
-    let data = await response.json()
+    let data = await response.json();
     //initialize the flights table (removing the old flights) .
     initializeExtTable();
     let counter = 0;
     data.forEach(function (flight) {
-        if (flight.is_external === "true") {
+        if (flight.is_external === true) {
             extFlights.push(flight);
             if (selected != null && flight.flight_id == selected.flight_id) {
                 selected = flight;
@@ -219,7 +219,7 @@ function showOnMap(flight) {
             if (this.readyState == 4 && this.status == 200) {
                 let flightPlan = JSON.parse(x.responseText);
                 $.ajax(activate(flight, marker, flightPlan));
-            }
+            } 
         };
         x.open("GET", flightsUrl, true);
         x.send();

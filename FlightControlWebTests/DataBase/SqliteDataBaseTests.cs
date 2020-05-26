@@ -6,11 +6,9 @@ using System.Text;
 using FlightControl.Models;
 using FlightControl.Models.FlightPlanObjects;
 using Microsoft.Data.Sqlite;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -29,11 +27,11 @@ namespace FlightControl.Tests
         [TestMethod()]
         public void AddFlightPlanTest()
         {
-/*            dataBase = new SqliteDataBase();
-            createTest();
-            // Assert.Fail();*/
+            /*            dataBase = new SqliteDataBase();
+                        createTest();
+                        // Assert.Fail();*/
             //using(var mock = )
-          
+
         }
         private void createTest()
         {
@@ -171,10 +169,10 @@ namespace FlightControl.Tests
         {
             dataBase = new SqliteDataBase();
 
-            if (dataBase.GetFlightPlanById("111111111111111111") != null)
-            {
-                Assert.Fail("Problem in get flight by Id");
-            }
+            /*  if (dataBase.GetFlightPlanById("111111111111111111") != null)
+              {
+                  Assert.Fail("Problem in get flight by Id");
+              }*/
             string id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             if (dataBase.GetFlightPlanById(id) == null)
             {
@@ -199,11 +197,10 @@ namespace FlightControl.Tests
         public void GetFlightPlanByIdAndSyncTest()
         {
             dataBase = new SqliteDataBase();
-
-            if (dataBase.GetFlightPlanById("111111111111111111") != null)
+            /*if (dataBase.GetFlightPlanById("111111111111111111") != null)
             {
                 Assert.Fail("Problem in get flight by Id");
-            }
+            }*/
             string id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             if (dataBase.GetFlightPlanById(id) == null)
             {
@@ -212,5 +209,3 @@ namespace FlightControl.Tests
         }
     }
 }
-
-

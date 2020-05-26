@@ -8,6 +8,7 @@ using FlightControl.Models;
 using FlightControlWeb;
 using System.Linq;
 using FlightControl.Models.FlightPlanObjects;
+using System.Threading.Tasks;
 
 namespace FlightControl.Tests
 {
@@ -25,7 +26,7 @@ namespace FlightControl.Tests
             }
             catch (Exception e)
             {
-                e=null;
+                e = null;
             }
         }
 
@@ -34,16 +35,14 @@ namespace FlightControl.Tests
         {
             dataBase = new SqliteDataBase("sqliteTest.sqlite");
             createTest();
-            //Assert.Fail();
         }
         private void createTest()
         {
             // Reset the flights for the test.
             deleteFlights();
-            // Add 2 flight plans.
+            // Add 3 flight plans.
             addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             addFlightPlansForFake(20, 30, 100, 6, 7, "Wizz", false, true);
-            // Add flightPlan withe latitude not valid.
             addFlightPlansForFake(50, 67, 200, 8, 5, "Rainair", false, true);
             // Flight without segments.
             addFlightPlansForFake(40, 80, 215, 6, 3, "Arkia", false, false);
@@ -57,24 +56,32 @@ namespace FlightControl.Tests
                 Console.WriteLine("There is a problem with test of flight without segments");
             }
             // Add flightPlan without companyName.
-            //addFlightPlansForFake(32, 34, 250, 8, 4, null, false, true);
-            // Add flight without passengers.
-            addFlightPlansForFake(20, 30, 0, 4, 6, "Wizz", false, true);
-            if (isGoodTest(4, 3))
+            addFlightPlansForFake(32, 34, 250, 8, 4, null, false, true);
+            if (isGoodTest(3, 4) || isGoodTest(3, 5))
             {
-                Console.WriteLine("The test of flight without passengers was successful");
+                Console.WriteLine("The test of flight without companyName was successful");
             }
             else
             {
-                Assert.Fail("There is a problem with test of flight without passengers");
-                Console.WriteLine("There is a problem with test of flight without passengers");
+                Assert.Fail("There is a problem with test of flight without companyName");
+                Console.WriteLine("There is a problem with test of flight without companyName");
+            }
+            // Add flight with passengers not valid.
+            addFlightPlansForFake(20, 30, -100, 4, 6, "Wizz", false, true);
+            if (isGoodTest(3, 4) || isGoodTest(3, 5) || isGoodTest(3, 6))
+            {
+                Console.WriteLine("The test of flight passengers not valid was successful");
+            }
+            else
+            {
+                Assert.Fail("There is a problem with test of flight passengers not valid");
+                Console.WriteLine("There is a problem with test of flight without companyNamepassengers not valid");
             }
             // Add regular flight.        
             addFlightPlansForFake(40, 50, 150, 6, 5, "Lufthanza", false, true);
             addFlightPlansForFake(30, 60, 175, 6, 7, "El-AL", false, true);
             addFlightPlansForFake(70, 70, 220, 5, 3, "Delta", false, true);
             string idDelete = addFlightPlansForFake(43, 42, 120, 1, 7, "IsraAir", false, true);
-            //Thread.Sleep(3000);
             dataBase.DeleteFlightPlanFromTable(idDelete);
             if (isGoodTest(7, 8))
             {
@@ -86,17 +93,11 @@ namespace FlightControl.Tests
                 Assert.Fail("There is a problem with the input");
                 Console.WriteLine("There is a problem with the input");
             }
-            // Check the Methood GetFlightPlanById.
-            if (dataBase.GetFlightPlanById("111111111111111111") != null)
-            {
-                Assert.Fail("Problem in get flight by Id");
-            }
             string id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             if (dataBase.GetFlightPlanById(id) == null)
             {
                 Assert.Fail("Problem in get flight by Id");
             }
-
             // Check the Methood DeleteFlightPlanFromTable.
             id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             int size = sizeFlights();
@@ -106,16 +107,17 @@ namespace FlightControl.Tests
                 Assert.Fail("Problem in erasing flights");
             }
 
-            if (dataBase.GetFlightPlanById("111111111111111111") != null)
+            /*if (dataBase.GetFlightPlanById("111111111111111111") != null)
             {
-                Assert.Fail("Problem in get flight by Id");
-            }
+              //  Assert.Fail("Problem in get flight by Id");
+               
+            }*/
 
             // Check the Methood GetFlightPlanByIdAndSync.
             id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             if (dataBase.GetFlightPlanById(id) == null)
             {
-                Assert.Fail("Problem in get flight by Id");
+                Assert.Fail("Problem in get flight by Id async");
             }
         }
         private int sizeFlights()
