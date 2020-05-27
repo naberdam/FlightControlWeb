@@ -34,7 +34,7 @@ namespace FlightControl
             SqliteConnectionStringBuilder connectionStringBuilder = new SqliteConnectionStringBuilder
             {
                 // The path of our sqlite that we want to create.
-                DataSource = AppDomain.CurrentDomain.BaseDirectory + @"\Database.sqlite"
+                DataSource = AppDomain.CurrentDomain.BaseDirectory + @"Database.sqlite"
             };
             myConnection = new SqliteConnection(connectionStringBuilder.ConnectionString);
             CreateSQLTableInTheBeginning();
