@@ -97,7 +97,7 @@ async function DisplayAllFlights() {
     let flightsUrl = "../api/Flights?relative_to=" + dateTime + "&sync_all";
     let response = await fetch(flightsUrl);
     if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
-        alert("Error on server!\n");
+        myAlert("Error on server!\n", 2500);
     }
     else if (response.status === 404)
         return;
@@ -115,17 +115,17 @@ async function DisplayAllFlights() {
             } else if (flight.is_external === true) {
                 updateExternTable(flight);
             } else {
-                updateInternTable(flight,counter);
+                updateInternTable(flight, counter);
                 counter++;
             }
         });
         addEventListnerToRows();
         addEventListnerToExtRows();
     } catch (e) {
-        alert("Error in writint extern table.\n");
+        myAlert("Error in writint extern table.\n", 2500);
     }
 }
-async function updateInternTable(flight,counter) {
+async function updateInternTable(flight, counter) {
     flights.push(flight);
     if (selected !== null && flight.flight_id === selected.flight_id) {
         selected = flight;
@@ -141,7 +141,7 @@ async function updateInternTable(flight,counter) {
     }
     showOnMap(flight);
 }
-async function updateExternTable(flight){
+async function updateExternTable(flight) {
     if (flight.is_external === true) {
         extFlights.push(flight);
         if (selected !== null && flight.flight_id === selected.flight_id) {
@@ -183,7 +183,7 @@ function btnclick(numOfRow) {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-            alert("Error on server!\n");
+            myAlert("Error on server!\n", 2500);
         }
     };
     xhr.open("DELETE", url, true);
@@ -242,7 +242,7 @@ function showOnMap(flight) {
                 $.ajax(activate(flight, marker, flightPlan));
             }
             else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-                alert("Error on server!\n");
+                myAlert("Error on server!\n", 2500);
             }
         };
         x.open("GET", flightsUrl, true);
@@ -261,7 +261,7 @@ function helper(flight) {
             $.ajax(activate(flight, marker, flightPlan));
         }
         else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-            alert("Error on server!\n");
+            myAlert("Error on server!\n", 2500);
         }
     };
     x.open("GET", flightsUrl, true);
@@ -473,4 +473,14 @@ function removePath() {
     let path = flightPath.getPath();
     path = [];
     flightPath.setPath(path);
+}
+
+function myAlert(msg, duration) {
+    let el = document.createElement("div");
+    el.setAttribute("style", "position:absolute;top:30%;left:50%;display:inline-block;background-color:white;height: 100px;vertical-align: middle;text-align: center;background-color: yellow;text-align: center;font-size: 25px;");
+    el.innerHTML = msg;
+    setTimeout(function () {
+        el.parentNode.removeChild(el);
+    }, duration);
+    document.body.appendChild(el);
 }
