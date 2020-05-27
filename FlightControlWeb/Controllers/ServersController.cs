@@ -45,12 +45,6 @@ namespace FlightControl.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(string id)
         {
-            string urlRequest = Request.Path;
-            string correctPattern = @"^/api/Server/[a-zA-Z]{2}[0-9]{5}[a-zA-Z]{3}$";
-            if (!Regex.IsMatch(urlRequest, correctPattern))
-            {
-                return BadRequest();
-            }
             bool succeed = serverManager.DeleteServer(id);
             if (!succeed)
             {
