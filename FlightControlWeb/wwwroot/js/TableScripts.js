@@ -169,7 +169,6 @@ async function DisplayExtFlights() {
         alert("Error in writint extern table.\n");
     }
 }
-
 async function checkIfSelectedNotNull() {
     if (selected !== null) {
         if (checkIfSelectedNotEnd() === false) {
