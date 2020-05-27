@@ -19,6 +19,7 @@
             <div class="col-md-7" id="map"></div>
             <div class="col-md-5" >
                 <div class="jumbotron" id="dragArea" style="overflow-y:scroll; max-height:300px;">
+                    <h3 id="det2">Flights Details</h3>
                     <table class="table" id="intern_table" ondragover="onDragOver(event)" style="overflow-y:hidden; max-height:50px;">
                         <thead style="overflow-y:hidden; max-height:50px;">
                             <tr>
@@ -49,7 +50,7 @@
         <div class="row">
             <div class="col-md-7">
                 <div class="jumbotron" >
-                    <h2 id="det">Flights Details</h2>
+                    <h3 id="det">Flight Plan Details</h3>
                     <table id="tableFlights" border="1" style="width:650px" align="center" cellspacing="25">
                         <tr>
                             <th align="center" style="text-align:center"> flight_id</th>
@@ -64,7 +65,8 @@
                 </div>
             </div>
             <div class="col-md-5">
-                <div class="jumbotron" id="lowerTable" style="overflow-y:scroll; max-height:300px;" onclick="rowExClick()" >
+                <div class="jumbotron" id="lowerTable" style="overflow-y:scroll; max-height:300px;" onclick="rowExClick()">
+                    <h3 id="det3">External Flights Details</h3>
                     <table class="table" id="extern_table">
                         <thead>
                             <tr>
@@ -96,7 +98,7 @@
         let flightPath
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 6,
+                zoom: 2,
                 center: { lat: 32.009444, lng: 34.876944 },
                 mapTypeId: 'terrain'
             });
