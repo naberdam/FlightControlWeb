@@ -196,7 +196,7 @@ function btnclick(numOfRow) {
     let url = "../api/Flights/" + id;
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
-        if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+        if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
             alert("Error on server!\n");
         }
     };
@@ -255,7 +255,7 @@ function showOnMap(flight) {
                 let flightPlan = JSON.parse(x.responseText);
                 $.ajax(activate(flight, marker, flightPlan));
             }
-            else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+            else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
                 alert("Error on server!\n");
             }
         };
@@ -274,7 +274,7 @@ function helper(flight) {
             let flightPlan = JSON.parse(x.responseText);
             $.ajax(activate(flight, marker, flightPlan));
         }
-        else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
+        else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
             alert("Error on server!\n");
         }
     };
