@@ -109,7 +109,10 @@ async function DisplayAllFlights() {
         let counter = 0;
         resetMarkers();
         data.forEach(function (flight) {
-            if (flight.is_external === true) {
+            if ((flight.longitude > 180 || flight.longitude < -180) ||
+                (flight.latitude > 90 || flight.latitude < -90)) {
+                return;
+            } else if (flight.is_external === true) {
                 updateExternTable(flight);
             } else {
                 updateInternTable(flight,counter);

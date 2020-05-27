@@ -8,10 +8,10 @@ namespace FlightControlWeb.DataBase
 {
     public class CheckObjects
     {
-        private const double MaxLatitude = 180.0;
-        private const double MinLatitude = -180.0;
-        private const double MaxLongitude = 90.0;
-        private const double MinLongitude = -90.0;
+        private const double MaxLatitude = 90.0;
+        private const double MinLatitude = -90.0;
+        private const double MaxLongitude = 180.0;
+        private const double MinLongitude = -180.0;
         public static bool CheckProperServer(Server server)
         {
             if (server.ServerId == null) { return false; }

@@ -7,6 +7,11 @@ function onDrop(ev) {
         let file = ev.dataTransfer.items[0].getAsFile();
         let flightURL = "../api/FlightPlan";
         let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
+                alert("Error on server!\n");
+            }
+        };
         xhr.open("POST", flightURL, true);
         xhr.setRequestHeader("content-type", "application/json");
         xhr.send(file);
