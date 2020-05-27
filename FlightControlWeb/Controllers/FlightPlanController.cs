@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using FlightControl.Models;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.Extensions;
+using FlightControlWeb.DataBase;
 
 namespace FlightControl.Controllers
 {
@@ -35,8 +36,13 @@ namespace FlightControl.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] FlightPlan flightPlan)
         {
+            if (!CheckObjects.CheckFlightPlan(flightPlan))
+            {
+                return BadRequest();
+            }
             string idOfAddedFlightPlan = flightPlanManager.AddFlightPlan(flightPlan);
-            return CreatedAtAction(actionName: "GetFlightPlan", new { id = idOfAddedFlightPlan }, flightPlan);
+            return CreatedAtAction(actionName: "GetFlightPlan",
+                new { id = idOfAddedFlightPlan }, flightPlan);
         }
     }
 }

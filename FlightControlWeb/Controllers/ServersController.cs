@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FlightControl.Models;
 using System.Text.RegularExpressions;
+using FlightControlWeb.DataBase;
 
 namespace FlightControl.Controllers
 {
@@ -33,14 +34,17 @@ namespace FlightControl.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Server server)
         {
+            if (!CheckObjects.CheckProperServer(server))
+            {
+                return BadRequest();
+            }
             string idOfAddedServer = serverManager.AddServer(server);
             if (idOfAddedServer == null)
             {
-                return BadRequest(idOfAddedServer);
+                return NotFound(idOfAddedServer);
             }
             return Ok(idOfAddedServer);
         }
-
         // DELETE: api/Server/5
         [HttpDelete("{id}")]
         public ActionResult Delete(string id)
