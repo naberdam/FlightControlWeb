@@ -753,7 +753,14 @@ namespace FlightControl
                     await GetGenericFromAnotherServer<List<Flights>>(url);
                 CreateOrDeleteSQLFlightFromOtherServer(flightsFromOtherServer,
                     serverIdList[i].ServerId);
-                if (flightsFromOtherServer == null) { continue; }
+                if (flightsFromOtherServer == null)
+                {
+                    // If there are not flights in this external server, then delete his flights 
+                    // From FlightsFromExternalServersSQL.
+                    DeleteLineFromTable("DELETE FROM FlightsFromExternalServersSQL WHERE " +
+                        "ServerId=\"" + serverIdList[i].ServerId + "\"");
+                    continue;
+                }
                 flightsFromOtherServer = ChangeToExternal(flightsFromOtherServer);
                 // If flightsFromOtherServer is not null, so merge between the lists.
                 flightsListFromAllExternalServers.AddRange(flightsFromOtherServer);

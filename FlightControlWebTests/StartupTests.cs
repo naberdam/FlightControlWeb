@@ -15,7 +15,9 @@ namespace FlightControl.Tests
     [TestClass()]
     public class StartupTests
     {
+        // Our data base that we will make a tests about his data that we will send him.
         SqliteDataBase dataBase;
+        // Check the exception.
         [TestMethod()]
         public void ConfigureServicesTest()
         {
@@ -26,27 +28,30 @@ namespace FlightControl.Tests
             }
             catch (Exception)
             {
-                
+
             }
         }
 
         [TestMethod()]
         public async Task ConfigureServicesTest1()
         {
+            // Build the data base.
             dataBase = new SqliteDataBase("sqliteTest.sqlite");
-            await createTest();
+            await CreateTest();
         }
-        private async Task createTest()
+        private async Task CreateTest()
         {
             // Reset the flights for the test.
-            deleteFlights();
+            DeleteFlights();
             // Add 3 flight plans.
-            addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
-            addFlightPlansForFake(20, 30, 100, 6, 7, "Wizz", false, true);
-            addFlightPlansForFake(50, 67, 200, 8, 5, "Rainair", false, true);
+            AddFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            AddFlightPlansForFake(20, 30, 100, 6, 7, "Wizz", false, true);
+            AddFlightPlansForFake(50, 67, 200, 8, 5, "Rainair", false, true);
             // Flight without segments.
-            addFlightPlansForFake(40, 80, 215, 6, 3, "Arkia", false, false);
-            if (isGoodTest(3, 4))
+            AddFlightPlansForFake(40, 80, 215, 6, 3, "Arkia", false, false);
+            // Check the number of the flights that we have.
+            ///To know if the invalid flight get in or not.
+            if (IsGoodTest(3, 4))
             {
                 Console.WriteLine("The test of flight without segments was successful");
             }
@@ -56,8 +61,10 @@ namespace FlightControl.Tests
                 Console.WriteLine("There is a problem with test of flight without segments");
             }
             // Add flightPlan without companyName.
-            addFlightPlansForFake(32, 34, 250, 8, 4, null, false, true);
-            if (isGoodTest(3, 4) || isGoodTest(3, 5))
+            AddFlightPlansForFake(32, 34, 250, 8, 4, null, false, true);
+            // Check the number of the flights that we have.
+            //To know if the invalid flight get in or not.
+            if (IsGoodTest(3, 4) || IsGoodTest(3, 5))
             {
                 Console.WriteLine("The test of flight without companyName was successful");
             }
@@ -67,62 +74,67 @@ namespace FlightControl.Tests
                 Console.WriteLine("There is a problem with test of flight without companyName");
             }
             // Add flight with passengers not valid.
-            addFlightPlansForFake(20, 30, -100, 4, 6, "Wizz", false, true);
-            if (isGoodTest(3, 4) || isGoodTest(3, 5) || isGoodTest(3, 6))
+            AddFlightPlansForFake(20, 30, -100, 4, 6, "Wizz", false, true);
+            // Check the number of the flights that we have.
+            // To know if the invalid flight get in or not.
+            if (IsGoodTest(3, 4) || IsGoodTest(3, 5) || IsGoodTest(3, 6))
             {
                 Console.WriteLine("The test of flight passengers not valid was successful");
             }
             else
             {
                 Assert.Fail("There is a problem with test of flight passengers not valid");
-                Console.WriteLine("There is a problem with test of flight without companyNamepassengers not valid");
+                Console.WriteLine("Problem with test of flight without passengers not valid");
             }
-            // Add regular flight.        
-            addFlightPlansForFake(40, 50, 150, 6, 5, "Lufthanza", false, true);
-            addFlightPlansForFake(30, 60, 175, 6, 7, "El-AL", false, true);
-            addFlightPlansForFake(70, 70, 220, 5, 3, "Delta", false, true);
-            string idDelete = addFlightPlansForFake(43, 42, 120, 1, 7, "IsraAir", false, true);
+            // Add regular flights.        
+            AddFlightPlansForFake(40, 50, 150, 6, 5, "Lufthanza", false, true);
+            AddFlightPlansForFake(30, 60, 175, 6, 7, "El-AL", false, true);
+            AddFlightPlansForFake(70, 70, 220, 5, 3, "Delta", false, true);
+            string idDelete = AddFlightPlansForFake(43, 42, 120, 1, 7, "IsraAir", false, true);
             dataBase.DeleteFlightPlanFromTable(idDelete);
-            if (isGoodTest(7, 8))
+            if (IsGoodTest(7, 8))
             {
                 // print good test all.
-                Console.WriteLine("All of The tests was successful");
+                Console.WriteLine("Delete and regular filghts tests was successful");
             }
             else
             {
                 Assert.Fail("There is a problem with the input");
                 Console.WriteLine("There is a problem with the input");
             }
-            string id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            string id = AddFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            // Check GetFlightPlanById and it will call to the async too.
             if (await dataBase.GetFlightPlanById(id) == null)
             {
                 Assert.Fail("Problem in get flight by Id");
             }
             // Check the Methood DeleteFlightPlanFromTable.
-            id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
-            int size = sizeFlights();
+            id = AddFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            int size = SizeFlights();
             dataBase.DeleteFlightPlanFromTable(id);
-            if (sizeFlights() != (size - 1))
+            // Check delete.
+            if (SizeFlights() != (size - 1))
             {
                 Assert.Fail("Problem in erasing flights");
             }
             // Flight that not exist.
-       
+
             if (await dataBase.GetFlightPlanById("111111111111111111") != null)
             {
-                  Assert.Fail("Problem in get flight by Id");
+                Assert.Fail("Problem in get flight by Id");
 
             }
-
             // Check the Methood GetFlightPlanByIdAndSync.
-            id = addFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
+            id = AddFlightPlansForFake(32, 34, 250, 8, 4, "Swiss", false, true);
             if (await dataBase.GetFlightPlanById(id) == null)
             {
                 Assert.Fail("Problem in get flight by Id async");
             }
         }
-        private int sizeFlights()
+        // The methood check the how much flights we have in our data base right now.
+        private int SizeFlights()
         {
+            // Check the time now.
             DateTime current = DateTime.Now;
             string date = current.ToString("yyyy-MM-ddTHH:mm:ss") + "Z";
             List<Flights> flightsNow = new List<Flights>();
@@ -133,11 +145,13 @@ namespace FlightControl.Tests
             }
             return flightsNow.Count();
         }
-        private void deleteFlights()
+        // Delete all the flights for the test.
+        private void DeleteFlights()
         {
-            DateTime current = DateTime.Now;           
+            DateTime current = DateTime.Now;
             string date = current.ToString("yyyy-MM-ddTHH:mm:ss") + "Z";
             List<Flights> flightsNow = new List<Flights>();
+            // Get the list of the flights.
             flightsNow = dataBase.GetFlightsByDateTime(date);
             if (flightsNow == null)
             {
@@ -150,9 +164,9 @@ namespace FlightControl.Tests
             }
         }
         // Function that returns true if it is a good test.
-        private bool isGoodTest(int numberExpected, int notExpected)
+        private bool IsGoodTest(int numberExpected, int notExpected)
         {
-            int size = sizeFlights();
+            int size = SizeFlights();
             if (size == notExpected)
             {
                 // Problem in the test.
@@ -165,7 +179,9 @@ namespace FlightControl.Tests
             }
             return true;
         }
-        private string addFlightPlansForFake(int longitudeStart, int latitudeStart, int passangers, int inceaseLong, int increaseLat, string companyName, bool sameId, bool withSegments)
+        // The function will add flights to our data base.
+        private string AddFlightPlansForFake(int longitudeStart, int latitudeStart, int passangers,
+            int inceaseLong, int increaseLat, string companyName, bool sameId, bool withSegments)
         {
             DateTime current = DateTime.Now;
             current = current.AddSeconds(-10);
