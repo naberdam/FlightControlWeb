@@ -165,6 +165,7 @@ async function DisplayExtFlights() {
             }
         });
         addEventListnerToExtRows();
+        checkIfSelectedNotNull();
     } catch (e) {
         alert("Error in writint extern table.\n");
     }
@@ -175,10 +176,10 @@ async function checkIfSelectedNotNull() {
         if (checkIfSelectedNotEnd() === false) {
             return;
         }
-            let table = document.getElementById("tableFlights");
-            if (table.rows.length > 1)
-                table.deleteRow(1);
-            generateTable(selected);
+        let table = document.getElementById("tableFlights");
+        if (table.rows.length > 1)
+            table.deleteRow(1);
+        generateTable(selected);
     }
 }
 
@@ -202,14 +203,17 @@ function btnclick(numOfRow) {
     xhr.open("DELETE", url, true);
     xhr.send();
 }
+
 async function checkIfSelectedNotEnd() {
     if (findExFlight(selected.flight_id) === null && findFlight(selected.flight_id) === null) {
         resetDetailsTable();
+        removePath();
         selected = null;
         return false;
     }
     return true;
 }
+
 function showOnMap(flight) {
     let icon2 = {
         url: "../images/Travel.png", // url
@@ -258,43 +262,6 @@ function showOnMap(flight) {
         x.open("GET", flightsUrl, true);
         x.send();
     });
-}
-
-function rowClick(i) {
-    let table = document.getElementById("intern_table");
-    let id = table.rows[i].cells[0].innerHTML;
-    let xhr = new XMLHttpRequest();
-    let url = "../api/Flights/" + id;
-    activate(flight, marker, flightPlan);
-    xhr.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            let flight = JSON.parse(x.responseText);
-            $.ajax(helper(flight));
-        }
-        else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
-            alert("Error on server!\n");
-        }
-    };
-    xhr.open("GET", url, true);
-    xhr.send();
-}
-function rowExClick(i) {
-    let table = document.getElementById("extern_table");
-    let id = table.rows[i].cells[0].innerHTML;
-    let xhr = new XMLHttpRequest();
-    let url = "../api/Flights/" + id;
-    activate(flight, marker, flightPlan);
-    xhr.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            let flight = JSON.parse(x.responseText);
-            $.ajax(helper(flight));
-        }
-        else if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
-            alert("Error on server!\n");
-        }
-    };
-    xhr.open("GET", url, true);
-    xhr.send();
 }
 
 function helper(flight) {
