@@ -97,7 +97,7 @@ async function DisplayAllFlights() {
     let flightsUrl = "../api/Flights?relative_to=" + dateTime + "&sync_all";
     let response = await fetch(flightsUrl);
     if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
-        myAlert("Error on server!\n", 2500);
+        myAlert("Could not get Flights!\n", 2500);
     }
     else if (response.status === 404)
         return;
@@ -132,7 +132,7 @@ async function DisplayAllFlights() {
             addEventListnerToExtRows();
         }
     } catch (e) {
-        myAlert("Error in writint extern table.\n", 2500);
+        myAlert("Error in writing to tables.\n", 2500);
     }
 }
 function checkForChanges(data) {
@@ -208,7 +208,7 @@ function btnclick(numOfRow) {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-            myAlert("Error on server!\n", 2500);
+            myAlert("Could not get Flight!\n", 2500);
         }
     };
     xhr.open("DELETE", url, true);
@@ -267,7 +267,7 @@ function showOnMap(flight) {
                 $.ajax(activate(flight, marker, flightPlan));
             }
             else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-                myAlert("Error on server!\n", 2500);
+                myAlert("Could not get FlightPlan!\n", 2500);
             }
         };
         x.open("GET", flightsUrl, true);
@@ -286,7 +286,7 @@ function helper(flight) {
             $.ajax(activate(flight, marker, flightPlan));
         }
         else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-            myAlert("Error on server!\n", 2500);
+            myAlert("Could not get FlightPlan!\n", 2500);
         }
     };
     x.open("GET", flightsUrl, true);

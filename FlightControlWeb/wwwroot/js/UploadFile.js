@@ -9,7 +9,7 @@ function onDrop(ev) {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-                myAlert("Error on server!\n", 2500);
+                myAlert("Could not get FlightPlan!\n", 2500);
             }
         };
         xhr.open("POST", flightURL, true);
