@@ -343,6 +343,7 @@ function activate(flight, marker, flightPlan) {
     highlightOnTable(flight);
     generateTable(flight);
     changeMarker(marker, flight);
+
 }
 
 function addEventListnerToRows() {
