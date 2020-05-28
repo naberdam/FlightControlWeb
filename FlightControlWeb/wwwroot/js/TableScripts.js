@@ -104,8 +104,13 @@ async function DisplayAllFlights() {
     try {
         let data = await response.json();
         //initialize the flights table (removing the old flights) .
-        initializeExtTable();
-        initializeTable();
+        let changesFlag2 = 0;
+        changesFlag2 = checkForChanges(data);
+        let changesFlag = changesFlag2;
+        if (changesFlag === 1) {
+            initializeExtTable();
+            initializeTable();
+        }
         let counter = 0;
         resetMarkers();
         data.forEach(function (flight) {
@@ -113,36 +118,49 @@ async function DisplayAllFlights() {
                 flight.latitude > 90 || flight.latitude < -90) {
                 return;
             } else if (flight.is_external === true) {
-                updateExternTable(flight);
+                updateExternTable(flight, changesFlag);
             } else {
-                updateInternTable(flight, counter);
+                updateInternTable(flight, counter, changesFlag);
                 counter++;
             }
         });
-        addEventListnerToRows();
-        addEventListnerToExtRows();
+        if (changesFlag) {
+            addEventListnerToRows();
+            addEventListnerToExtRows();
+        }
     } catch (e) {
         myAlert("Error in writint extern table.\n", 2500);
     }
 }
-async function updateInternTable(flight, counter) {
-    flights.push(flight);
-    if (selected !== null && flight.flight_id === selected.flight_id) {
-        selected = flight;
-        $("#intern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
-            + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
-            + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() onclick=btnclick(this)>"
-            + "<img src=\"../images/Trash1.png\"></button></td></tr>");
-    } else {
-        $("#intern_table").append("<tr style=\"background-color: white\"> <td>"
-            + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
-            + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() >"
-            + "<img src=\"../images/Trash1.png\"></button></td></tr>");
+function checkForChanges(data) {
+    if (data.length !== flights.length + extFlights.length)
+        return 1;
+    for (let i = 0; i < data.length; i++) {
+        if (findFlight(data[i].flight_id) === null && findExFlight(data[i].flight_id) === null)
+            return 1;
+    }
+    return 0;
+}
+async function updateInternTable(flight, counter, changesFlag) {
+    if (changesFlag === 1) {
+        flights.push(flight);
+        if (selected !== null && flight.flight_id === selected.flight_id) {
+            selected = flight;
+            $("#intern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
+                + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
+                + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() onclick=btnclick(this)>"
+                + "<img src=\"../images/Trash1.png\"></button></td></tr>");
+        } else {
+            $("#intern_table").append("<tr style=\"background-color: white\"> <td>"
+                + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
+                + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() >"
+                + "<img src=\"../images/Trash1.png\"></button></td></tr>");
+        }
     }
     showOnMap(flight);
 }
-async function updateExternTable(flight) {
-    if (flight.is_external === true) {
+async function updateExternTable(flight, changesFlag) {
+    if (changesFlag === 1) {
         extFlights.push(flight);
         if (selected !== null && flight.flight_id === selected.flight_id) {
             selected = flight;
@@ -154,8 +172,8 @@ async function updateExternTable(flight) {
                 + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
                 + flight.passengers + "</td></tr>");
         }
-        showOnMap(flight);
     }
+    showOnMap(flight);
 }
 async function checkIfSelectedNotNull() {
     if (selected !== null) {
