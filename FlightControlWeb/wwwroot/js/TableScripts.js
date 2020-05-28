@@ -110,6 +110,9 @@ async function DisplayAllFlights() {
         if (changesFlag === 1) {
             initializeExtTable();
             initializeTable();
+        } else {
+            extFlights = [];
+            flights = [];
         }
         let counter = 0;
         resetMarkers();
@@ -142,10 +145,12 @@ function checkForChanges(data) {
     return 0;
 }
 async function updateInternTable(flight, counter, changesFlag) {
+    flights.push(flight);
+    if (selected !== null && flight.flight_id === selected.flight_id) {
+        selected = flight;
+    }
     if (changesFlag === 1) {
-        flights.push(flight);
         if (selected !== null && flight.flight_id === selected.flight_id) {
-            selected = flight;
             $("#intern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
                 + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
                 + flight.passengers + "</td><td><button onmousedown=btnclick(" + counter + ") onclick=event.stopPropagation() onclick=btnclick(this)>"
@@ -160,10 +165,12 @@ async function updateInternTable(flight, counter, changesFlag) {
     showOnMap(flight);
 }
 async function updateExternTable(flight, changesFlag) {
+    extFlights.push(flight);
+    if (selected !== null && flight.flight_id === selected.flight_id) {
+        selected = flight;
+    }
     if (changesFlag === 1) {
-        extFlights.push(flight);
         if (selected !== null && flight.flight_id === selected.flight_id) {
-            selected = flight;
             $("#extern_table").append("<tr style=\"background-color: aquamarine\"> <td>"
                 + flight.flight_id + "</td>" + "<td>" + flight.company_name + "</td>" + "<td>"
                 + flight.passengers + "</td></tr>");
