@@ -267,7 +267,7 @@ function showOnMap(flight) {
                 $.ajax(activate(flight, marker, flightPlan));
             }
             else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-                myAlert("Could not get FlightPlan!\n", 2500);
+                myAlert("Could not get Flight-Plan!\n", 2500);
             }
         };
         x.open("GET", flightsUrl, true);
@@ -286,7 +286,7 @@ function helper(flight) {
             $.ajax(activate(flight, marker, flightPlan));
         }
         else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-            myAlert("Could not get FlightPlan!\n", 2500);
+            myAlert("Could not get Flight-Plan!\n", 2500);
         }
     };
     x.open("GET", flightsUrl, true);
