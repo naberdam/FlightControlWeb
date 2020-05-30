@@ -503,7 +503,7 @@ function removePath() {
 
 function myAlert(msg, duration) {
     let el = document.createElement("div");
-    el.setAttribute("style", "position:absolute;top:30%;left:50%;display:inline-block;background-color:white;height: 100px;vertical-align: middle;text-align: center;background-color: yellow;text-align: center;font-size: 25px;");
+    el.setAttribute("style", "position:absolute;top:0%;left:45%;display:inline-block;background-color:white;height: 40px; width: 240px; vertical-align: middle;text-align: center;background-color: red;text-align: center;font-size: 18px;");
     el.innerHTML = msg;
     setTimeout(function () {
         el.parentNode.removeChild(el);
