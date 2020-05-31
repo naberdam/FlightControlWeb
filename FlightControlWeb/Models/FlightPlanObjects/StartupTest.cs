@@ -16,15 +16,12 @@ namespace FlightControl
 {
     public class StartupTest
     {
-        bool isTest;
-        IServiceCollection services;
         public StartupTest(IConfiguration configuration)
         {
             if (configuration == null)
             {
                 throw new Exception("Problem with null configuration");
             }
-            isTest = false;
             Configuration = configuration;
         }
 
