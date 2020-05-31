@@ -16,15 +16,14 @@ namespace FlightControl
 {
     public class Startup
     {
-        bool isTest;
-        IServiceCollection services;
+
         public Startup(IConfiguration configuration)
         {
             if (configuration == null)
             {
                 throw new Exception("Problem with null configuration");
             }
-            isTest = false;
+
             Configuration = configuration;
         }
 
@@ -38,15 +37,15 @@ namespace FlightControl
             services.AddSingleton<IFlightPlanManager, FlightPlanManager>();
             services.AddSingleton<IServersManager, ServersManager>();
             services.AddSingleton<IDataBase, SqliteDataBase>();
-            
+
 
 
         }
-       
-       /* public void ConfigureServicesDataBase(IDataBase db)
-        {
-            services.AddSingleton<IDataBase, db>();
-        }*/
+
+        /* public void ConfigureServicesDataBase(IDataBase db)
+         {
+             services.AddSingleton<IDataBase, db>();
+         }*/
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
