@@ -18,15 +18,15 @@ function getDateTime() {
         dateTime = dateTime.concat("0");
     dateTime = dateTime.concat(day.toString());
     dateTime = dateTime.concat("T");
-    if (d.getHours() < 10)
+    if (d.getUTCHours() < 10)
         dateTime = dateTime.concat("0");
     dateTime = dateTime.concat(d.getUTCHours().toString());
     dateTime = dateTime.concat(":");
-    if (d.getMinutes() < 10)
+    if (d.getUTCMinutes() < 10)
         dateTime = dateTime.concat("0");
     dateTime = dateTime.concat(d.getUTCMinutes().toString());
     dateTime = dateTime.concat(":");
-    if (d.getSeconds() < 10)
+    if (d.getUTCSeconds() < 10)
         dateTime = dateTime.concat("0");
     dateTime = dateTime.concat(d.getUTCSeconds().toString());
     dateTime = dateTime.concat("Z");
@@ -333,8 +333,6 @@ function generateTable(flight) {
     c4.innerHTML = flight.company_name;
     let c5 = row.insertCell(5);
     c5.innerHTML = flight.date_time;
-    let c6 = row.insertCell(6);
-    c6.innerHTML = flight.is_external;
 }
 
 function activate(flight, marker, flightPlan) {
