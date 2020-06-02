@@ -193,7 +193,7 @@ namespace FlightControl.Tests
             {
                 Latitude = latitudeStart,
                 Longitude = longitudeStart,
-                Date_Time = date
+                DateTime = date
             };
             if (withSegments)
             {
@@ -202,13 +202,13 @@ namespace FlightControl.Tests
                 {
                     Latitude = latitudeStart + increaseLat,
                     Longitude = longitudeStart + inceaseLong,
-                    Timespan_Seconds = 10000
+                    TimespanSeconds = 10000
                 });
                 flightPlanFake1.Segments.Add(new Segment
                 {
                     Latitude = latitudeStart + 2 * increaseLat,
                     Longitude = longitudeStart + 2 * inceaseLong,
-                    Timespan_Seconds = 10000
+                    TimespanSeconds = 10000
                 });
             }
             string id;

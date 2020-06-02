@@ -27,13 +27,13 @@ namespace FlightControlWeb.DataBase
             if (flightPlan.Segments == null) { return false; }
             if (flightPlan.CompanyName == null) { return false; }
             if (flightPlan.Passengers <= 0) { return false; }
-            if (flightPlan.Location.Date_Time == default) { return false; }
+            if (flightPlan.Location.DateTime == default) { return false; }
             if (!CheckLatitude(flightPlan.Location.Latitude)) { return false; }
             if (!CheckLongitude(flightPlan.Location.Longitude)) { return false; }
             int i = 0;
             for (; i < flightPlan.Segments.Count; ++i)
             {
-                if (flightPlan.Segments[i].Timespan_Seconds <= 0) { return false; }
+                if (flightPlan.Segments[i].TimespanSeconds <= 0) { return false; }
                 if (!CheckLatitude(flightPlan.Segments[i].Latitude)) { return false; }
                 if (!CheckLongitude(flightPlan.Segments[i].Longitude)) { return false; }
             }
@@ -87,10 +87,7 @@ namespace FlightControlWeb.DataBase
                     return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

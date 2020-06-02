@@ -40,6 +40,10 @@ namespace FlightControl.Controllers
             {
                 return BadRequest();
             }
+            if (!CheckObjects.CheckDateTime(flightPlan.Location.DateTime))
+            {
+                return BadRequest();
+            }
             string idOfAddedFlightPlan = flightPlanManager.AddFlightPlan(flightPlan);
             return CreatedAtAction(actionName: "GetFlightPlan",
                 new { id = idOfAddedFlightPlan }, flightPlan);

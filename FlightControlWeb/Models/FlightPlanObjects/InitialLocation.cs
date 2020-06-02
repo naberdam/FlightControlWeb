@@ -25,7 +25,7 @@ namespace FlightControl.Models.FlightPlanObjects
         }
         [JsonProperty("date_time")]
         [JsonPropertyName("date_time")]
-        public string Date_Time
+        public string DateTime
         {
             get;
             set;

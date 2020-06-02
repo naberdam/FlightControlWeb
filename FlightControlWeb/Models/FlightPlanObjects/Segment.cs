@@ -25,7 +25,7 @@ namespace FlightControl.Models.FlightPlanObjects
         }
         [JsonProperty("timespan_seconds")]
         [JsonPropertyName("timespan_seconds")]
-        public int Timespan_Seconds
+        public int TimespanSeconds
         {
             get;
             set;

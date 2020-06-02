@@ -186,7 +186,7 @@ namespace FlightControl
             addInitialLocationTableCommand.Parameters.AddWithValue(
                 "@Latitude", flightPlan.Location.Latitude);
             addInitialLocationTableCommand.Parameters.AddWithValue(
-                "@Date_Time", flightPlan.Location.Date_Time);
+                "@Date_Time", flightPlan.Location.DateTime);
             try
             {
                 addInitialLocationTableCommand.ExecuteReader();
@@ -222,7 +222,7 @@ namespace FlightControl
             addSegmentTableCommand.Parameters.AddWithValue("@Longitude", segment.Longitude);
             addSegmentTableCommand.Parameters.AddWithValue("@Latitude", segment.Latitude);
             addSegmentTableCommand.Parameters.AddWithValue(
-                "@Timespan_Seconds", segment.Timespan_Seconds);
+                "@Timespan_Seconds", segment.TimespanSeconds);
             try
             {
                 addSegmentTableCommand.ExecuteReader();
@@ -397,8 +397,8 @@ namespace FlightControl
             // Check which segment we need now.
             do
             {
-                dateTimeTemp = dateTimeTemp.AddSeconds(segmentList[i].Timespan_Seconds);
-                sumOfSeconds += segmentList[i].Timespan_Seconds;
+                dateTimeTemp = dateTimeTemp.AddSeconds(segmentList[i].TimespanSeconds);
+                sumOfSeconds += segmentList[i].TimespanSeconds;
                 i++;
             } while (dateTimeRequest.CompareTo(dateTimeTemp) >= 0 && i < segmentList.Count);
             // Get coordinates of start and end.double latitude1
@@ -412,7 +412,7 @@ namespace FlightControl
                 latitude = Convert.ToDouble(initialLocation.Latitude);
                 longitude = Convert.ToDouble(initialLocation.Longitude);
             }
-            int secondsToDecrease = -(sumOfSeconds - segmentList[i - 1].Timespan_Seconds);
+            int secondsToDecrease = -(sumOfSeconds - segmentList[i - 1].TimespanSeconds);
             DateTime temp1 = dateTimeRequest.AddSeconds(secondsToDecrease);
             double leftTime = (temp1 - startFlight).TotalSeconds;
             CalculateNewLongitudeLatitude(flight, latitude, longitude, leftTime,
@@ -426,7 +426,7 @@ namespace FlightControl
         {
             double latitude = segment.Latitude;
             double longitude = segment.Longitude;
-            double partOfSegment = leftTime / segment.Timespan_Seconds;
+            double partOfSegment = leftTime / segment.TimespanSeconds;
             flight.Latitude = GetCurrentLatitude(givenLatitude, latitude, partOfSegment);
             flight.Longitude = GetCurrentLongitude(givenLongitude, longitude, partOfSegment);
         }
@@ -461,7 +461,7 @@ namespace FlightControl
             {
                 Longitude = Convert.ToDouble(initialLocationOfIdFlight[0].ToString()),
                 Latitude = Convert.ToDouble(initialLocationOfIdFlight[1].ToString()),
-                Date_Time = initialLocationOfIdFlight[2].ToString()
+                DateTime = initialLocationOfIdFlight[2].ToString()
             };
         }
         // Function that takes list of ocject array and turns it to list of Segment.
@@ -478,7 +478,7 @@ namespace FlightControl
                 {
                     Longitude = Convert.ToDouble(objectSegmentList[i][0].ToString()),
                     Latitude = Convert.ToDouble(objectSegmentList[i][1].ToString()),
-                    Timespan_Seconds = Convert.ToInt32(objectSegmentList[i][2].ToString())
+                    TimespanSeconds = Convert.ToInt32(objectSegmentList[i][2].ToString())
                 });
             }
             return segmentList;
@@ -491,8 +491,8 @@ namespace FlightControl
             List<Segment> segmentList = GetSegmentList(id);
             InitialLocation initialLocation = GetInitialLocation(id);
             // Create flight with the given values.
-            Flights flight = CreateFlight(isExternal, id, initialLocation.Date_Time);
-            DateTime dateTimeOfIdFlight = ConvertToDateTime(initialLocation.Date_Time);
+            Flights flight = CreateFlight(isExternal, id, initialLocation.DateTime);
+            DateTime dateTimeOfIdFlight = ConvertToDateTime(initialLocation.DateTime);
             // Set the current coordinates.
             SetCurrentCoordinates(dateTime, dateTimeOfIdFlight, segmentList, flight,
                 initialLocation);

@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Flight Control Project By Neria, Amitai, Tal And Yoel</title>
+
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel='icon' href='images/favicon.ico' type='image/x-icon' />
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-7" id="map"></div>
+            <div class="col-md-5">
+                <div class="jumbotron" id="dragArea" style="overflow-y:scroll; max-height:300px;">
+                    <h3 id="det2">Flights Details</h3>
+                    <table class="table" id="intern_table" ondragover="onDragOver(event)" style="overflow-y:hidden; max-height:50px;">
+                        <thead style="overflow-y:hidden; max-height:50px;">
+                            <tr>
+                                <th>
+                                    ID
+                                </th>
+                                <th>
+                                    Company
+                                </th>
+                                <th>
+                                    Passengers
+                                </th>
+                                <th>
+                                    Delete
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody style="overflow-y:hidden; max-height:50px;">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="jumbotron" id="dragAndDrop" ondrop="onDrop(event)" ondragover="allowDrop(event)" style="display:none"
+                     ondragleave="onDragLeave(event)" onclick="rowClick()">
+                    <img src="images/dd_8_80.jpg" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="jumbotron">
+                    <h3 id="det">Flight Plan Details</h3>
+                    <table id="tableFlights" border="1" style="width:650px" align="center" cellspacing="25">
+                        <tr>
+                            <th align="center" style="text-align:center"> flight_id</th>
+                            <th align="center" style="text-align:center"> longitude</th>
+                            <th align="center" style="text-align:center"> latitude</th>
+                            <th align="center" style="text-align:center"> passengers</th>
+                            <th align="center" style="text-align:center"> company_name</th>
+                            <th align="center" style="text-align:center"> date_time</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="jumbotron" id="lowerTable" style="overflow-y:scroll; max-height:300px;">
+                    <h3 id="det3">External Flights Details</h3>
+                    <table class="table" id="extern_table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    ID
+                                </th>
+                                <th>
+                                    Company
+                                </th>
+                                <th>
+                                    Passengers
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        // This example creates a 2-pixel-wide red polyline showing the path of
+        // the first trans-Pacific flight between Oakland, CA, and Brisbane,
+        // Australia which was made by Charles Kingsford Smith.
+        let map
+        flightPlanCoordinates = new Array();
+        let flightPath
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 2,
+                center: { lat: 32.009444, lng: 34.876944 },
+                mapTypeId: 'terrain'
+            });
+
+            google.maps.event.addListener(map, 'click', function (event) {
+                if (selected !== null) {
+                    reset(selected);
+                    selected = null;
+                }
+            });
+
+            flightPlanCoordinates = [];
+            flightPath = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 1.5
+            });
+
+            flightPath.setMap(map);
+        }
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAP0eL2Fhp2xkJBLf9VhITAPgZt8Svl0_0&callback=initMap">
+    </script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/UploadFile.js"></script>
+    <script src="js/TableScripts.js"></script>
+    <script src="js/new.js"></script>
+</body>
+</html>
