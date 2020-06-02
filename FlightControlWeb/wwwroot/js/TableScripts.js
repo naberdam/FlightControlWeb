@@ -6,29 +6,29 @@ let extFlights = [];
 
 function getDateTime() {
     let d = new Date();
-    let dateTime = d.getFullYear().toString();
+    let dateTime = d.getUTCFullYear().toString();
     dateTime = dateTime.concat("-");
-    let month = d.getMonth() + 1;
+    let month = d.getUTCMonth() + 1;
     if (month < 10)
         dateTime = dateTime.concat("0");
     dateTime = dateTime.concat(month.toString());
     dateTime = dateTime.concat("-");
-    let day = d.getDate();
+    let day = d.getUTCDate();
     if (day < 10)
         dateTime = dateTime.concat("0");
     dateTime = dateTime.concat(day.toString());
     dateTime = dateTime.concat("T");
     if (d.getHours() < 10)
         dateTime = dateTime.concat("0");
-    dateTime = dateTime.concat(d.getHours().toString());
+    dateTime = dateTime.concat(d.getUTCHours().toString());
     dateTime = dateTime.concat(":");
     if (d.getMinutes() < 10)
         dateTime = dateTime.concat("0");
-    dateTime = dateTime.concat(d.getMinutes().toString());
+    dateTime = dateTime.concat(d.getUTCMinutes().toString());
     dateTime = dateTime.concat(":");
     if (d.getSeconds() < 10)
         dateTime = dateTime.concat("0");
-    dateTime = dateTime.concat(d.getSeconds().toString());
+    dateTime = dateTime.concat(d.getUTCSeconds().toString());
     dateTime = dateTime.concat("Z");
     return dateTime;
 }
