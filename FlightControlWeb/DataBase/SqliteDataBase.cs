@@ -164,7 +164,7 @@ namespace FlightControl
             addFlightPlanTableCommand.Parameters.AddWithValue(
                 "@Passengers", flightPlan.Passengers);
             addFlightPlanTableCommand.Parameters.AddWithValue(
-                "@Company_name", flightPlan.Company_name);
+                "@Company_name", flightPlan.CompanyName);
             addFlightPlanTableCommand.Parameters.AddWithValue(
                 "@Is_external", "false");
             try
@@ -275,7 +275,7 @@ namespace FlightControl
             FlightPlan flightPlan = new FlightPlan
             {
                 Passengers = Convert.ToInt32(lineFlightPlanSQL[1]),
-                Company_name = lineFlightPlanSQL[2].ToString(),
+                CompanyName = lineFlightPlanSQL[2].ToString(),
                 Location = GetInitialLocation(id)
             };
             // Set the Segment list while using listSegmentSQL.
@@ -567,13 +567,13 @@ namespace FlightControl
             // Set new Flight.
             return new Flights
             {
-                Flight_id = id,
+                FlightId = id,
                 Longitude = Convert.ToDouble(longitude[0]),
                 Latitude = Convert.ToDouble(latitude[0]),
                 Passengers = Convert.ToInt32(passengers[0].ToString()),
-                Company_name = companyName[0].ToString(),
-                Date_time = dateTime,
-                Is_external = isExternalBoolean
+                CompanyName = companyName[0].ToString(),
+                DateTime = dateTime,
+                IsExternal = isExternalBoolean
             };
         }
         private bool CreateBooleanIsExternal(string isExternal)
@@ -751,7 +751,7 @@ namespace FlightControl
             {
                 if (!CheckObjects.CheckFlights(flightsFromOtherServer[i])) { continue; }
                 AddFlightIdToFlightsFromExternalServersSQL(
-                    flightsFromOtherServer[i].Flight_id, idOfServer);
+                    flightsFromOtherServer[i].FlightId, idOfServer);
             }
             mutexOfFlightsFromServer.ReleaseMutex();
         }
@@ -815,7 +815,7 @@ namespace FlightControl
             // Update Is_external to be "true".
             foreach (Flights item in flightList)
             {
-                item.Is_external = true;
+                item.IsExternal = true;
             }
             return flightList;
         }

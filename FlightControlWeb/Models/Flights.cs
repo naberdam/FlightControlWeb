@@ -11,7 +11,7 @@ namespace FlightControl.Models
     {
         [JsonProperty("flight_id")]
         [JsonPropertyName("flight_id")]
-        public string Flight_id
+        public string FlightId
         {
             get;
             set;
@@ -40,21 +40,21 @@ namespace FlightControl.Models
         }
         [JsonProperty("company_name")]
         [JsonPropertyName("company_name")]
-        public string Company_name
+        public string CompanyName
         {
             get;
             set;
         }
         [JsonProperty("date_time")]
         [JsonPropertyName("date_time")]
-        public string Date_time
+        public string DateTime
         {
             get;
             set;
         }
         [JsonProperty("is_external")]
         [JsonPropertyName("is_external")]
-        public bool Is_external
+        public bool IsExternal
         {
             get;
             set;

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FlightControl.Models;
 using System.Text.RegularExpressions;
+using FlightControlWeb.DataBase;
 
 namespace FlightControl.Controllers
 {
@@ -27,10 +28,14 @@ namespace FlightControl.Controllers
             // The pattern we asked for.
             string patternAndSync = @"^?relative_to=(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z+(&sync_all)$";
             string patternWithoutSync = @"^?relative_to=(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$";
+            // Check if the givven dateTime in relative_to is availible.
+            if (!CheckObjects.CheckDateTime(relative_To))
+            {
+                return BadRequest();
+            }
             if (Regex.IsMatch(urlRequest, patternAndSync))
             {
                 flightList = await flightManager.GetFlightsByDateTimeAndSync(relative_To);
-
             }
             else if (Regex.IsMatch(urlRequest, patternWithoutSync))
             {

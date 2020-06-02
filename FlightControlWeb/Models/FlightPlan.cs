@@ -19,7 +19,7 @@ namespace FlightControl.Models
         }
         [JsonProperty("company_name")]
         [JsonPropertyName("company_name")]
-        public string Company_name
+        public string CompanyName
         {
             get;
             set;

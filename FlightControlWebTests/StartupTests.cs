@@ -159,7 +159,7 @@ namespace FlightControl.Tests
             }
             foreach (Flights flight in flightsNow)
             {
-                string id = flight.Flight_id;
+                string id = flight.FlightId;
                 dataBase.DeleteFlightPlanFromTable(id);
             }
         }
@@ -187,7 +187,7 @@ namespace FlightControl.Tests
             current = current.AddSeconds(-10);
             string date = current.ToString("yyyy-MM-ddTHH:mm:ss") + "Z";
             FlightPlan flightPlanFake1 = new FlightPlan();
-            flightPlanFake1.Company_name = companyName;
+            flightPlanFake1.CompanyName = companyName;
             flightPlanFake1.Passengers = passangers;
             flightPlanFake1.Location = new InitialLocation
             {
