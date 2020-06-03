@@ -336,7 +336,7 @@ function generateTable(flight) {
     let c3 = row.insertCell(3);
     c3.innerHTML = flight.company_name;
     let c4 = row.insertCell(4);
-    c4.innerHTML = beg;
+    c4.innerHTML = beg.substring(0, 10) + "\n" + beg.substring(11, 19);
     let c5 = row.insertCell(5);
     c5.innerHTML = end;
 }

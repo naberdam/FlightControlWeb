@@ -3,6 +3,8 @@ let markers = [];
 let flights = [];
 let extMarkers = [];
 let extFlights = [];
+let beg;
+let end;
 
 function getDateTime() {
     let d = new Date();
@@ -201,6 +203,8 @@ function btnclick(numOfRow) {
     if (selected !== null && selected.flight_id === id) {
         reset(selected);
         selected = null;
+        beg = null;
+        end = null;
     }
     m.setMap(null);
     document.getElementById("intern_table").deleteRow(numOfRow + 1);
@@ -220,6 +224,8 @@ async function checkIfSelectedNotEnd() {
         resetDetailsTable();
         removePath();
         selected = null;
+        beg = null;
+        end = null;
         return false;
     }
     return true;
@@ -319,48 +325,20 @@ function findExFlight(id) {
 }
 
 function generateTable(flight) {
-    let flightsUrl = "../api/FlightPlan/" + flight.flight_id;
-    let x = new XMLHttpRequest();
-    x.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            let flightPlan = JSON.parse(x.responseText);
-            let table = document.getElementById("tableFlights");
-            let row = table.insertRow(1);
-            let c0 = row.insertCell(0);
-            c0.innerHTML = flight.flight_id;
-            let c1 = row.insertCell(1);
-            c1.innerHTML = flight.longitude.toFixed(3);
-            let c2 = row.insertCell(2);
-            c2.innerHTML = flight.latitude.toFixed(3);
-            let c3 = row.insertCell(3);
-            c3.innerHTML = flight.company_name;
-            let c4 = row.insertCell(4);
-            c4.innerHTML = flightPlan.initial_location.date_time.substring(0, 10) + "\n" +
-                flightPlan.initial_location.date_time.substring(11, 19);
-            let c5 = row.insertCell(5);
-            c5.innerHTML = EndTime(flightPlan.initial_location.date_time, flightPlan.segments);
-        }
-        else if (this.statusText !== "" && (this.status >= 300 || this.status < 200) && this.status !== 404) {
-            myAlert("Could not get Flight-Plan to show details!\n", 2500);
-            let table = document.getElementById("tableFlights");
-            let row = table.insertRow(1);
-            let c0 = row.insertCell(0);
-            c0.innerHTML = flight.flight_id;
-            let c1 = row.insertCell(1);
-            c1.innerHTML = flight.longitude.toFixed(3);
-            let c2 = row.insertCell(2);
-            c2.innerHTML = flight.latitude.toFixed(3);
-            let c3 = row.insertCell(3);
-            c3.innerHTML = flight.company_name;
-            let c4 = row.insertCell(4);
-            c4.innerHTML = "-";
-            let c5 = row.insertCell(5);
-            c5.innerHTML = "-";
-        }
-    };
-    x.open("GET", flightsUrl, true);
-    x.send();
-    
+    let table = document.getElementById("tableFlights");
+    let row = table.insertRow(1);
+    let c0 = row.insertCell(0);
+    c0.innerHTML = flight.flight_id;
+    let c1 = row.insertCell(1);
+    c1.innerHTML = flight.longitude.toFixed(3);
+    let c2 = row.insertCell(2);
+    c2.innerHTML = flight.latitude.toFixed(3);
+    let c3 = row.insertCell(3);
+    c3.innerHTML = flight.company_name;
+    let c4 = row.insertCell(4);
+    c4.innerHTML = beg.substring(0, 10) + "\n" + beg.substring(11, 19);
+    let c5 = row.insertCell(5);
+    c5.innerHTML = end;
 }
 
 function EndTime(startTime, segments) {
@@ -380,10 +358,14 @@ function activate(flight, marker, flightPlan) {
         reset(selected);
         if (selected.flight_id === flight.flight_id) {
             selected = null;
+            end = null;
+            beg = null;
             return;
         }
     }
     selected = flight;
+    beg = flightPlan.initial_location.date_time;
+    end = EndTime(flightPlan.initial_location.date_time, flightPlan.segments);
     showPath(flightPlan);
     highlightOnTable(flight);
     generateTable(flight);
